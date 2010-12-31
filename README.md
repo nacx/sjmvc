@@ -21,10 +21,10 @@ SJMVC can be compiled as a standard [Maven](http://maven.apache.org/) project:
 That will run all tests and generate the packaged file in the *target/* folder.
 
 
-Using SJMVC
------------
+Using SJMVC in your project
+---------------------------
 
-To use SJMVC in your proyect, just add the dependency in your `pom.xml`:
+To use SJMVC in your proyect, just add the dependency in your *pom.xml*:
 
     <dependency>
         <groupId>org.sjmvc</groupId>
@@ -33,7 +33,7 @@ To use SJMVC in your proyect, just add the dependency in your `pom.xml`:
     </dependency>
 
 To use snapshot versions, you will have to add the [Sonatype Snapshot Repository](https://oss.sonatype.org/content/repositories/snapshots/)
-to your `pom.xml` as follows:
+to your *pom.xml* as follows:
 
     <repositories>
         <repository>
