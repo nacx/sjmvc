@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sjmvc.config.SJMVCConfig;
+import org.sjmvc.config.Configuration;
 import org.sjmvc.controller.Controller;
 import org.sjmvc.controller.ControllerException;
 import org.slf4j.Logger;
@@ -175,7 +175,7 @@ public class MVCServlet extends HttpServlet
     {
         Properties config = new Properties();
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        config.load(cl.getResourceAsStream(SJMVCConfig.CONFIG_FILE));
+        config.load(cl.getResourceAsStream(Configuration.CONFIG_FILE));
 
         LOGGER.info("Loading controller mappings...");
 
@@ -183,12 +183,12 @@ public class MVCServlet extends HttpServlet
         {
             String key = (String) mappingKey;
 
-            if (SJMVCConfig.isControllerProperty(key))
+            if (Configuration.isControllerProperty(key))
             {
                 String path = config.getProperty(key);
                 String clazz =
-                    config.getProperty(key.replace(SJMVCConfig.CONTROLLER_PATH_SUFFIX,
-                        SJMVCConfig.CONTROLLER_CLASS_SUFFIX));
+                    config.getProperty(key.replace(Configuration.CONTROLLER_PATH_SUFFIX,
+                        Configuration.CONTROLLER_CLASS_SUFFIX));
 
                 if (clazz == null)
                 {
@@ -202,7 +202,7 @@ public class MVCServlet extends HttpServlet
             }
         }
 
-        layout = config.getProperty(SJMVCConfig.LAYOUT_PROPERTY);
+        layout = config.getProperty(Configuration.LAYOUT_PROPERTY);
 
         if (layout == null)
         {

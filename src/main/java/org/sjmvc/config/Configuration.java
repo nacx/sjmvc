@@ -29,7 +29,7 @@ import org.sjmvc.controller.Controller;
  * 
  * @author Ignasi Barrera
  */
-public class SJMVCConfig
+public class Configuration
 {
     /** The main configuration file. */
     public static final String CONFIG_FILE = "sjmvc.properties";
