@@ -141,12 +141,6 @@ public class MVCServlet extends HttpServlet
         }
     }
 
-    /**
-     * Calls the API to store the Rhyme.
-     * 
-     * @param req The request.
-     * @param resp The response.
-     */
     @Override
     protected void doPost(final HttpServletRequest req, final HttpServletResponse resp)
         throws ServletException, IOException
