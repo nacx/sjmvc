@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sjmvc.config.Configuration;
 import org.sjmvc.controller.Controller;
-import org.sjmvc.controller.ControllerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +60,8 @@ public class MVCServlet extends HttpServlet
     /** The layout path. */
     private static final String LAYOUT_PATH = VIEW_PATH + "/layout";
 
-    /** Mappings from request path to {@link Controller} objects. */
-    protected Map<String, Controller> controllers;
+    /** Mappings from request path to {@link Controller} class objects. */
+    protected Map<String, Class<Controller>> controllerClassess;
 
     /** The main layout file to use in the application. */
     protected String layout;
@@ -72,7 +71,7 @@ public class MVCServlet extends HttpServlet
      */
     public MVCServlet()
     {
-        controllers = new HashMap<String, Controller>();
+        controllerClassess = new HashMap<String, Class<Controller>>();
     }
 
     /**
@@ -99,32 +98,34 @@ public class MVCServlet extends HttpServlet
         throws ServletException, IOException
     {
         String controllerPath = null;
-        Controller controller = null;
+        Class<Controller> controllerClass = null;
         String requestedPath = getRequestedPath(req);
 
-        for (String path : controllers.keySet())
+        for (String path : controllerClassess.keySet())
         {
             if (requestedPath.startsWith(path))
             {
                 controllerPath = path;
-                controller = controllers.get(path);
+                controllerClass = controllerClassess.get(path);
 
-                LOGGER.debug("Using {} controller to handle request to: {}", controller.getClass()
+                LOGGER.debug("Using {} controller to handle request to: {}", controllerClass
                     .getName(), req.getRequestURI());
             }
         }
 
-        if (controller != null)
+        if (controllerClass != null)
         {
             try
             {
+                // Instantiate the controller on each request to make it thread-safe
+                Controller controller = controllerClass.newInstance();
                 String viewName = controller.execute(req, resp);
                 String viewPath = VIEW_PATH + controllerPath + "/" + viewName + VIEW_SUFFIX;
 
                 req.setAttribute("currentView", viewPath);
                 getServletContext().getRequestDispatcher(layout).forward(req, resp);
             }
-            catch (ControllerException ex)
+            catch (Exception ex)
             {
                 String errorMessage =
                     "An error occured during request handling: " + ex.getMessage();
@@ -165,6 +166,7 @@ public class MVCServlet extends HttpServlet
      * 
      * @throws Exception If mappings cannot be loaded.
      */
+    @SuppressWarnings("unchecked")
     protected void readConfiguration() throws Exception
     {
         Properties config = new Properties();
@@ -189,10 +191,12 @@ public class MVCServlet extends HttpServlet
                     throw new Exception("Missing controller class for path: " + path);
                 }
 
-                Controller controller = (Controller) Class.forName(clazz, true, cl).newInstance();
-                controllers.put(path, controller);
+                Class<Controller> controllerClass =
+                    (Class<Controller>) Class.forName(clazz, true, cl);
 
-                LOGGER.info("Mapping {} to {}", path, controller.getClass().getName());
+                controllerClassess.put(path, controllerClass);
+
+                LOGGER.info("Mapping {} to {}", path, controllerClass.getClass().getName());
             }
         }
 

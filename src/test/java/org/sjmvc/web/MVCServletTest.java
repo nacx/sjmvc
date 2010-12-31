@@ -73,8 +73,8 @@ public class MVCServletTest
     {
         mvcServlet.readConfiguration();
 
-        assertTrue(mvcServlet.controllers != null);
-        assertEquals(mvcServlet.controllers.size(), 1);
+        assertTrue(mvcServlet.controllerClassess != null);
+        assertEquals(mvcServlet.controllerClassess.size(), 1);
         assertEquals(mvcServlet.layout, "/jsp/layout/layout.jsp");
     }
 
