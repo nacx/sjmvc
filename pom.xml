@@ -5,6 +5,7 @@
 	<groupId>org.sjmvc</groupId>
 	<artifactId>sjmvc</artifactId>
 	<version>0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
 	<!-- Project properties -->
 	<name>SJMVC</name>
@@ -31,6 +32,13 @@
 		<system>Github</system>
 		<url>http://github.com/nacx/sjmvc/issues</url>
 	</issueManagement>
+
+	<!-- Developers -->
+	<developers>
+		<developer>
+			<name>Ignasi Barrera</name>
+		</developer>
+	</developers>
 
 	<!-- Dependencies -->
 	<dependencies>
@@ -87,6 +95,30 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
