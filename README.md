@@ -49,6 +49,7 @@ to your *pom.xml* as follows:
         </repository>
     </repositories>
     
+You will find instructions and examples on how to use it in the [project wiki](https://github.com/nacx/sjmvc/wiki).
 
 Customizing and Contributing
 ----------------------------
