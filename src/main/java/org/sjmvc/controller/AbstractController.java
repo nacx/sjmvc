@@ -23,12 +23,12 @@
 package org.sjmvc.controller;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.sjmvc.error.Errors;
 
 /**
  * Base class for {@link Controller} implementations.
@@ -41,7 +41,7 @@ public abstract class AbstractController implements Controller
     public static final String ERRORS_ATTRIBUTE = "errors";
 
     /** List of errors produced during method execution. */
-    private final List<String> errors = new LinkedList<String>();
+    private final Errors errors = new Errors();
 
     /** The view to return. */
     private String returnView;
@@ -148,7 +148,7 @@ public abstract class AbstractController implements Controller
      */
     protected boolean errors()
     {
-        return !errors.isEmpty();
+        return !errors.hasErrors();
     }
 
     /**
