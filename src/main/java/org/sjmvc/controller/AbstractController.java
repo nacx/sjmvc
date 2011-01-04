@@ -148,7 +148,7 @@ public abstract class AbstractController implements Controller
      */
     protected boolean errors()
     {
-        return !errors.hasErrors();
+        return errors.hasErrors();
     }
 
     /**

@@ -23,9 +23,7 @@
 package org.sjmvc.util;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import org.apache.commons.lang.StringUtils;
+import java.lang.reflect.ParameterizedType;
 
 /**
  * Utility method to perform reflection operations.
@@ -37,26 +35,16 @@ public class ReflectionUtils
     /**
      * Get the value of the given property
      * 
-     * @param <F> The type of the field to get.
      * @param target The object that has the field.
      * @param name The name of the property.
-     * @param type The type of the object to get.
      * @return The value of the property.
      * @throws Exception If the value of the property cannot be retrieved.
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T getProperty(Object target, String name, Class<T> type) throws Exception
+    public static Object getProperty(Object target, String name) throws Exception
     {
-        Method getter = ReflectionUtils.getter(name, target.getClass());
-        T value = (T) getter.invoke(target, (Object[]) null);
-
-        // Instantiate object if necessary
-        if (value == null)
-        {
-            value = type.newInstance();
-        }
-
-        return value;
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(target);
     }
 
     /**
@@ -70,6 +58,7 @@ public class ReflectionUtils
     public static void transformAndSet(Object target, String name, String value) throws Exception
     {
         Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
         field.set(target, fromString(field.getType(), value));
     }
 
@@ -83,46 +72,9 @@ public class ReflectionUtils
      */
     public static void setValue(Object target, String name, Object value) throws Exception
     {
-        Method setter = ReflectionUtils.setter(name, target.getClass(), value.getClass());
-        setter.invoke(target, new Object[] {value});
-    }
-
-    /**
-     * Gets the getter for the given field.
-     * 
-     * @param fieldName The name of the field.
-     * @param clazz The class that has the field.
-     * @return The getter for the given field.
-     * @throws Exception If the getter cannot be obtained.
-     */
-    public static Method getter(String fieldName, Class< ? > clazz) throws Exception
-    {
-        try
-        {
-            return getter("get", fieldName, clazz);
-        }
-        catch (NoSuchMethodException ex)
-        {
-            return getter("is", fieldName, clazz);
-        }
-    }
-
-    /**
-     * Gets the setter for the given field.
-     * 
-     * @param fieldName The name of the field.
-     * @param clazz The class that has the field.
-     * @param type The type of the field to set.
-     * @return The setter for the given field.
-     * @throws Exception If the setter cannot be obtained.
-     */
-    public static Method setter(String fieldName, Class< ? > clazz, Class< ? > type)
-        throws Exception
-    {
-        String name = "set" + StringUtils.capitalize(fieldName);
-        Method method = clazz.getMethod(name, new Class< ? >[] {type});
-        method.setAccessible(true);
-        return method;
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 
     /**
@@ -131,10 +83,15 @@ public class ReflectionUtils
      * @param clazz The destination class.
      * @param value The String value to convert.
      * @return The converted value.
+     * @throws Exception If the given value cannot be transformed.
      */
-    public static Object fromString(Class< ? > clazz, String value)
+    public static Object fromString(Class< ? > clazz, String value) throws Exception
     {
-        if (clazz.equals(Integer.class))
+        if (clazz.equals(String.class))
+        {
+            return value;
+        }
+        else if (clazz.equals(Integer.class))
         {
             return Integer.valueOf(value);
         }
@@ -163,22 +120,50 @@ public class ReflectionUtils
             return Short.valueOf(value);
         }
 
-        return value;
+        throw new Exception("Could not transform [" + value + "] to an object of class ["
+            + clazz.getName() + "]");
     }
 
     /**
-     * Gets the getter for the given field.
+     * Get type for the given property.
      * 
-     * @param prefix The field prefix.
-     * @param fieldName The name of the field.
-     * @param clazz The class that has the field.
-     * @return The getter for the given field.
-     * @throws Exception If teh getter cannot be obtained.
+     * @param name The name of the property.
+     * @param clazz The class that has the property.
+     * @return The type of the property.
+     * @throws Exception If the type of the property cannot be retrieved.
      */
-    private static Method getter(String prefix, String fieldName, Class< ? > clazz)
-        throws Exception
+    public static Class< ? > getFieldType(String name, Class< ? > clazz) throws Exception
     {
-        String name = prefix + StringUtils.capitalize(fieldName);
-        return clazz.getMethod(name, new Class< ? >[0]);
+        Field field = clazz.getDeclaredField(name);
+        return field.getType();
+    }
+
+    /**
+     * Get type for the elements of the given array property.
+     * 
+     * @param name The name of the array property.
+     * @param clazz The class that has the array property.
+     * @return The type of the elements of the given array property.
+     * @throws Exception If the type of the elements of the given property cannot be retrieved.
+     */
+    public static Class< ? > getFieldArrayType(String name, Class< ? > clazz) throws Exception
+    {
+        Field field = clazz.getDeclaredField(name);
+        return field.getType().getComponentType();
+    }
+
+    /**
+     * Get the generic type for the given collection property.
+     * 
+     * @param name The name of the collection property.
+     * @param clazz The class that has the property.
+     * @return The type of the elements of the collection.
+     * @throws Exception If the generic type of the collection cannot be retrieved.
+     */
+    public static Class< ? > getFieldCollectionType(String name, Class< ? > clazz) throws Exception
+    {
+        Field field = clazz.getDeclaredField(name);
+        ParameterizedType type = (ParameterizedType) field.getGenericType();
+        return (Class< ? >) type.getActualTypeArguments()[0];
     }
 }

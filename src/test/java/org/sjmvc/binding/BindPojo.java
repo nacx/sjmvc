@@ -23,6 +23,7 @@
 package org.sjmvc.binding;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Plain object used to perform binding tests.
@@ -37,6 +38,24 @@ public class BindPojo implements Serializable
     /** A String property. */
     private String stringProperty;
 
+    /** An Integer property. */
+    private Integer integerProperty;
+
+    /** A nested property. */
+    private NestedPojo nestedProperty;
+
+    /** A list of Strings. */
+    private List<String> stringList;
+
+    /** A list of Integers. */
+    private List<Integer> integerList;
+
+    /** An array of Strings. */
+    private String[] stringArray;
+
+    /** An array of Integers. */
+    private Integer[] integerArray;
+
     // Getters and setters
 
     public String getStringProperty()
@@ -47,6 +66,66 @@ public class BindPojo implements Serializable
     public void setStringProperty(String stringProperty)
     {
         this.stringProperty = stringProperty;
+    }
+
+    public Integer getIntegerProperty()
+    {
+        return integerProperty;
+    }
+
+    public void setIntegerProperty(Integer integerProperty)
+    {
+        this.integerProperty = integerProperty;
+    }
+
+    public NestedPojo getNestedProperty()
+    {
+        return nestedProperty;
+    }
+
+    public void setNestedProperty(NestedPojo nestedProperty)
+    {
+        this.nestedProperty = nestedProperty;
+    }
+
+    public List<String> getStringList()
+    {
+        return stringList;
+    }
+
+    public void setStringList(List<String> stringList)
+    {
+        this.stringList = stringList;
+    }
+
+    public List<Integer> getIntegerList()
+    {
+        return integerList;
+    }
+
+    public void setIntegerList(List<Integer> integerList)
+    {
+        this.integerList = integerList;
+    }
+
+    public String[] getStringArray()
+    {
+        return stringArray;
+    }
+
+    public void setStringArray(String[] stringArray)
+    {
+        this.stringArray = stringArray;
+    }
+
+    public Integer[] getIntegerArray()
+    {
+        return integerArray;
+    }
+
+    public void setIntegerArray(Integer[] integerArray)
+    {
+        this.integerArray = integerArray;
     }
 
 }

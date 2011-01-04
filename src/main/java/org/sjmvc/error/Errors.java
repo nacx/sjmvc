@@ -80,4 +80,21 @@ public class Errors implements Serializable
         errors.clear();
     }
 
+    /**
+     * Get the number of errors.
+     * 
+     * @return The number of errors.
+     */
+    public int errorCount()
+    {
+        return errors.size();
+    }
+
+    // Getters and setters
+
+    public List<Exception> getErrors()
+    {
+        return errors;
+    }
+
 }

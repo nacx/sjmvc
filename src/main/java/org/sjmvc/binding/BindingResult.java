@@ -29,6 +29,7 @@ import org.sjmvc.error.Errors;
  * 
  * @author Ignasi Barrera
  * @param <T> The type of the object target of the binding.
+ * @see BindingError
  */
 public class BindingResult<T>
 {

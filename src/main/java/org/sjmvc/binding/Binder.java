@@ -27,6 +27,8 @@ package org.sjmvc.binding;
  * 
  * @author Ignasi Barrera
  * @param <T> The type of the object target of the binding.
+ * @param <S> The type of the source target of the binding.
+ * @see RequestParameterBinder
  */
 public interface Binder<T, S>
 {

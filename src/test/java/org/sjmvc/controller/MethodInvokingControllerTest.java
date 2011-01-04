@@ -27,8 +27,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-import java.util.List;
-
+import org.sjmvc.error.Errors;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -98,20 +97,19 @@ public class MethodInvokingControllerTest
         assertEquals(controller.getView(), "invalidArguments");
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testMethodWithErrors() throws Exception
     {
         InvocationContext ic = servletClient.newInvocation(BASE_PATH + "/addError");
         controller.execute(ic.getRequest(), ic.getResponse());
 
-        List<String> errors =
-            (List<String>) ic.getRequest().getAttribute(MethodInvokingController.ERRORS_ATTRIBUTE);
+        Errors errors =
+            (Errors) ic.getRequest().getAttribute(MethodInvokingController.ERRORS_ATTRIBUTE);
 
         assertTrue(controller.errors());
         assertEquals(controller.getView(), "addError");
         assertTrue(errors != null);
-        assertEquals(errors.size(), 1);
+        assertEquals(errors.errorCount(), 1);
     }
 
     private void checkControllerException(InvocationContext ic,
