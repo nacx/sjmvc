@@ -19,7 +19,10 @@ That will run all tests and generate the packaged file in the *target/* folder.
 Using SJMVC in your project
 ---------------------------
 
-You will find instructions and examples on how to use it in the [Project wiki](https://github.com/nacx/sjmvc/wiki).
+You will find instructions and examples on how to configure your [Maven](http://maven.apache.org/)
+project and how to setup the application in the [Project wiki](https://github.com/nacx/sjmvc/wiki).
+
+You will also find all documentation and some examples that will guide you to create your SJMVC application.
     
 
 Customizing and Contributing
