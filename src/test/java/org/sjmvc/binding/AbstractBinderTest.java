@@ -22,13 +22,6 @@
 
 package org.sjmvc.binding;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-
-import java.lang.reflect.Array;
-import java.util.Collection;
-
-import org.sjmvc.util.ReflectionUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -37,169 +30,91 @@ import org.testng.annotations.Test;
  * 
  * @author Ignasi Barrera
  */
-public class AbstractBinderTest
+public class AbstractBinderTest extends BindingTestSupport<BindPojo>
 {
-    /** The binder to test. */
-    private AbstractBinder<BindPojo, Object> binder;
+	@BeforeMethod
+	public void setUp()
+	{
+		target = new BindPojo();
+		binder = new AbstractBinder<BindPojo, Object>(target, null) {
+			@Override
+			protected void doBind()
+			{
+				// Do nothing. Not used in this test.
+			}
+		};
+	}
 
-    /** The target of the binding. */
-    private BindPojo target;
+	@Test
+	public void testSetSimpleValue() throws Exception
+	{
+		// Strings
+		checkSetValue("stringProperty", null);
+		checkSetValue("stringProperty", "");
+		checkSetValue("stringProperty", "test");
 
-    @BeforeMethod
-    public void setUp()
-    {
-        target = new BindPojo();
-        binder = new AbstractBinder<BindPojo, Object>(target, null)
-        {
-            @Override
-            protected void doBind()
-            {
-                // Do nothing. Not used in this test.
-            }
-        };
-    }
+		// Numbers
+		checkInvalidSetValue("integerProperty", "");
+		checkInvalidSetValue("integerProperty", "test");
+		checkSetValue("integerProperty", null);
+		checkSetValue("integerProperty", "-1");
+		checkSetValue("integerProperty", "0");
+		checkSetValue("integerProperty", "17");
+	}
 
-    @Test
-    public void testSetSimpleValue() throws Exception
-    {
-        // Strings
-        checkSetValue("stringProperty", null);
-        checkSetValue("stringProperty", "");
-        checkSetValue("stringProperty", "test");
+	@Test
+	public void testSetCollectionValue() throws Exception
+	{
+		// Strings
+		checkSetCollectionValues("stringList", new String[] { null });
+		checkSetCollectionValues("stringList", "");
+		checkSetCollectionValues("stringList", null, null);
+		checkSetCollectionValues("stringList", "elem1", "elem2", "elem3");
 
-        // Numbers
-        checkInvalidSetValue("integerProperty", null);
-        checkInvalidSetValue("integerProperty", "");
-        checkInvalidSetValue("integerProperty", "test");
-        checkSetValue("integerProperty", "-1");
-        checkSetValue("integerProperty", "0");
-        checkSetValue("integerProperty", "17");
-    }
+		// Numbers
+		checkInvalidSetCollectionValues("integerList", "");
+		checkInvalidSetCollectionValues("integerList", "test");
+		checkSetCollectionValues("integerList", new String[] { null });
+		checkSetCollectionValues("integerList", null, null);
+		checkSetCollectionValues("integerList", "17");
+		checkSetCollectionValues("integerList", "-1", "0", "17");
+	}
 
-    @Test
-    public void testSetCollectionValue() throws Exception
-    {
-        // Strings
-        checkSetCollectionValues("stringList", new String[] {null});
-        checkSetCollectionValues("stringList", "");
-        checkSetCollectionValues("stringList", null, null);
-        checkSetCollectionValues("stringList", "elem1", "elem2", "elem3");
+	@Test
+	public void testSetArrayValue() throws Exception
+	{
+		// Strings
+		checkSetArrayValues("stringArray", new String[] { null });
+		checkSetArrayValues("stringArray", "");
+		checkSetArrayValues("stringArray", null, null);
+		checkSetArrayValues("stringArray", "elem1", "elem2", "elem3");
 
-        // Numbers
-        checkInvalidSetCollectionValues("integerList", new String[] {null});
-        checkInvalidSetCollectionValues("integerList", "");
-        checkInvalidSetCollectionValues("integerList", "test");
-        checkSetCollectionValues("integerList", "17");
-        checkSetCollectionValues("integerList", "-1", "0", "17");
-    }
+		// Numbers
+		checkInvalidSetArrayValues("integerArray", "");
+		checkInvalidSetArrayValues("integerArray", "test");
+		checkSetArrayValues("integerArray", new String[] { null });
+		checkSetArrayValues("integerArray", null, null);
+		checkSetArrayValues("integerArray", "17");
+		checkSetArrayValues("integerArray", "-1", "0", "17");
+	}
 
-    @Test
-    public void testSetArrayValue() throws Exception
-    {
-        // Strings
-        checkSetArrayValues("stringArray", new String[] {null});
-        checkSetArrayValues("stringArray", "");
-        checkSetArrayValues("stringArray", null, null);
-        checkSetArrayValues("stringArray", "elem1", "elem2", "elem3");
+	@Test
+	public void testBindSimpleField() throws Exception
+	{
+		// Strings
+		checkBindSimpleField("stringProperty", new String[] { null });
+		checkBindSimpleField("stringProperty", "");
+		checkBindSimpleField("stringProperty", "test");
+		checkBindSimpleField("stringProperty", null, null);
+		checkBindSimpleField("stringProperty", "test", "test2");
 
-        // Numbers
-        checkInvalidSetArrayValues("integerArray", new String[] {null});
-        checkInvalidSetArrayValues("integerArray", "");
-        checkInvalidSetArrayValues("integerArray", "test");
-        checkSetArrayValues("integerArray", "17");
-        checkSetArrayValues("integerArray", "-1", "0", "17");
-    }
+		// Numbers
+		checkInvalidBindSimpleField("integerProperty", "");
+		checkInvalidBindSimpleField("integerProperty", "test");
+		checkBindSimpleField("integerProperty", new String[] { null });
+		checkBindSimpleField("integerProperty", null, null);
+		checkBindSimpleField("integerProperty", "17");
+		checkBindSimpleField("integerProperty", "-1", "0", "17");
+	}
 
-    @Test
-    public void testBindField()
-    {
-        // Simple
-    }
-
-    // Helper methods
-
-    private <T> void checkSetValue(String propertyName, String value) throws Exception
-    {
-        binder.setValue(target, propertyName, new String[] {value});
-
-        Object setValue = ReflectionUtils.getProperty(target, propertyName);
-        Class< ? > type = ReflectionUtils.getFieldType(propertyName, target.getClass());
-
-        assertEquals(setValue, ReflectionUtils.fromString(type, value));
-    }
-
-    private void checkInvalidSetValue(String propertyName, String value) throws Exception
-    {
-        try
-        {
-            checkSetValue(propertyName, value);
-            fail("Binding of [" + propertyName + "] should fail");
-        }
-        catch (BindingError ex)
-        {
-            // Test success
-        }
-    }
-
-    private <T> void checkSetCollectionValues(String propertyName, String... values)
-        throws Exception
-    {
-        binder.setValue(target, propertyName, values);
-
-        Collection< ? > setValue =
-            (Collection< ? >) ReflectionUtils.getProperty(target, propertyName);
-        Class< ? > type = ReflectionUtils.getFieldCollectionType(propertyName, target.getClass());
-
-        assertEquals(setValue.size(), values.length);
-
-        int i = 0;
-        for (Object elem : setValue)
-        {
-            Object value = ReflectionUtils.fromString(type, values[i++]);
-            assertEquals(elem, value);
-        }
-    }
-
-    private void checkInvalidSetCollectionValues(String propertyName, String... values)
-        throws Exception
-    {
-        try
-        {
-            checkSetCollectionValues(propertyName, values);
-            fail("Binding of [" + propertyName + "] should fail");
-        }
-        catch (BindingError ex)
-        {
-            // Test success
-        }
-    }
-
-    private <T> void checkSetArrayValues(String propertyName, String... values) throws Exception
-    {
-        binder.setValue(target, propertyName, values);
-
-        Object setValue = ReflectionUtils.getProperty(target, propertyName);
-        Class< ? > type = ReflectionUtils.getFieldArrayType(propertyName, target.getClass());
-
-        assertEquals(Array.getLength(setValue), values.length);
-
-        for (int i = 0; i < values.length; i++)
-        {
-            Object value = ReflectionUtils.fromString(type, values[i]);
-            assertEquals(Array.get(setValue, i), value);
-        }
-    }
-
-    private void checkInvalidSetArrayValues(String propertyName, String... values) throws Exception
-    {
-        try
-        {
-            checkSetArrayValues(propertyName, values);
-            fail("Binding of [" + propertyName + "] should fail");
-        }
-        catch (BindingError ex)
-        {
-            // Test success
-        }
-    }
 }
