@@ -141,7 +141,6 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 	 * @param values The values to set.
 	 * @throws BindingError If the value of the property cannot be set.
 	 */
-	@SuppressWarnings("unchecked")
 	protected void setValue(Object currentObject, String name, String values[])
 			throws BindingError
 	{
@@ -156,52 +155,15 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 				// If property is a collection, iterate over the values
 				if (Collection.class.isAssignableFrom(field.getType()))
 				{
-					// Get the type of the elements in the collection
-					Class<?> elementsType = ReflectionUtils
-							.getFieldCollectionType(name,
-									currentObject.getClass());
-
-					// Get the collection and clear it
-					Collection<Object> col = (Collection<Object>) ReflectionUtils
-							.getProperty(currentObject, name);
-
-					if (col == null)
-					{
-						col = new ArrayList<Object>();
-					}
-
-					// Add the values to the collection
-					col.clear();
-
-					for (String currentValue : values)
-					{
-						col.add(ReflectionUtils.fromString(elementsType,
-								currentValue));
-					}
-
-					// Save the collection in the object
-					ReflectionUtils.setValue(currentObject, name, col);
+					setCollectionValues(field, currentObject, name, values);
 				}
 				else if (field.getType().isArray())
 				{
-					Class<?> elementsType = field.getType().getComponentType();
-					Object array = Array.newInstance(elementsType,
-							values.length);
-
-					for (int i = 0; i < values.length; i++)
-					{
-						Array.set(array, i, ReflectionUtils.fromString(
-								elementsType, values[i]));
-					}
-
-					// Save the array in the object
-					ReflectionUtils.setValue(currentObject, name, array);
+					setArrayValues(field, currentObject, name, values);
 				}
 				else
 				{
-					// Value should be a single element array
-					ReflectionUtils.transformAndSet(currentObject, name,
-							values[0]);
+					setSimpleValue(field, currentObject, name, values[0]);
 				}
 			}
 		}
@@ -210,6 +172,85 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 			throw new BindingError("Could not bind property [" + name
 					+ "] of [" + currentObject.getClass().getName() + "]", ex);
 		}
+	}
+
+	/**
+	 * Set the value in a simple property.
+	 * 
+	 * @param field The field to set.
+	 * @param currentObject The object being processed.
+	 * @param name The name of the property.
+	 * @param values The value to set.
+	 * @throws Exception If the value cannot be set in the property.
+	 */
+	protected void setSimpleValue(Field field, Object currentObject,
+			String name, String value) throws Exception
+	{
+		// Value should be a single element array
+		ReflectionUtils.transformAndSet(currentObject, name, value);
+	}
+
+	/**
+	 * Set the values in a collection property.
+	 * 
+	 * @param field The field to set.
+	 * @param currentObject The object being processed.
+	 * @param name The name of the collection property.
+	 * @param values The values to set.
+	 * @throws Exception If the values cannot be set in the collection property.
+	 */
+	protected void setCollectionValues(Field field, Object currentObject,
+			String name, String values[]) throws Exception
+	{
+		// Get the type of the elements in the collection
+		Class<?> elementsType = ReflectionUtils.getFieldCollectionType(name,
+				currentObject.getClass());
+
+		// Get the collection and clear it
+		@SuppressWarnings("unchecked")
+		Collection<Object> col = (Collection<Object>) ReflectionUtils
+				.getProperty(currentObject, name);
+
+		if (col == null)
+		{
+			col = new ArrayList<Object>();
+		}
+
+		// Add the values to the collection
+		col.clear();
+
+		for (String currentValue : values)
+		{
+			col.add(ReflectionUtils.fromString(elementsType, currentValue));
+		}
+
+		// Save the collection in the object
+		ReflectionUtils.setValue(currentObject, name, col);
+	}
+
+	/**
+	 * Set the values in an array property.
+	 * 
+	 * @param field The field to set.
+	 * @param currentObject The object being processed.
+	 * @param name The name of the array property.
+	 * @param values The values to set.
+	 * @throws Exception If the values cannot be set in the array property.
+	 */
+	protected void setArrayValues(Field field, Object currentObject,
+			String name, String values[]) throws Exception
+	{
+		Class<?> elementsType = field.getType().getComponentType();
+		Object array = Array.newInstance(elementsType, values.length);
+
+		for (int i = 0; i < values.length; i++)
+		{
+			Array.set(array, i,
+					ReflectionUtils.fromString(elementsType, values[i]));
+		}
+
+		// Save the array in the object
+		ReflectionUtils.setValue(currentObject, name, array);
 	}
 
 	@Override
