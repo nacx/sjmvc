@@ -22,6 +22,9 @@
 
 package org.sjmvc.binding;
 
+import static org.testng.Assert.assertEquals;
+
+import org.sjmvc.util.ReflectionUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -109,12 +112,88 @@ public class AbstractBinderTest extends BindingTestSupport<BindPojo>
 		checkBindSimpleField("stringProperty", "test", "test2");
 
 		// Numbers
-		checkInvalidBindSimpleField("integerProperty", "");
-		checkInvalidBindSimpleField("integerProperty", "test");
+		checkInvalidBindField("integerProperty", "");
+		checkInvalidBindField("integerProperty", "test");
 		checkBindSimpleField("integerProperty", new String[] { null });
 		checkBindSimpleField("integerProperty", null, null);
 		checkBindSimpleField("integerProperty", "17");
 		checkBindSimpleField("integerProperty", "-1", "0", "17");
 	}
 
+	@Test
+	public void testBindCollectionField() throws Exception
+	{
+		// Strings
+		checkBindCollectionField("stringList", new String[] { null });
+		checkBindCollectionField("stringList", "");
+		checkBindCollectionField("stringList", null, null);
+		checkBindCollectionField("stringList", "elem1", "elem2", "elem3");
+
+		// Numbers
+		checkInvalidBindField("integerList", "");
+		checkInvalidBindField("integerList", "test");
+		checkBindCollectionField("integerList", new String[] { null });
+		checkBindCollectionField("integerList", null, null);
+		checkBindCollectionField("integerList", "17");
+		checkBindCollectionField("integerList", "-1", "0", "17");
+	}
+
+	@Test
+	public void testBindArrayField() throws Exception
+	{
+		// Strings
+		checkBindArrayField("stringArray", new String[] { null });
+		checkBindArrayField("stringArray", "");
+		checkBindArrayField("stringArray", null, null);
+		checkBindArrayField("stringArray", "elem1", "elem2", "elem3");
+
+		// Numbers
+		checkInvalidBindField("integerArray", "");
+		checkInvalidBindField("integerArray", "test");
+		checkBindArrayField("integerArray", new String[] { null });
+		checkBindArrayField("integerArray", null, null);
+		checkBindArrayField("integerArray", "17");
+		checkBindArrayField("integerArray", "-1", "0", "17");
+	}
+
+	@Test
+	public void testBindNestedField() throws Exception
+	{
+		// Strings
+		checkBindNestedField("stringProperty", new String[] { null });
+		checkBindNestedField("stringProperty", "");
+		checkBindNestedField("stringProperty", "test");
+		checkBindNestedField("stringProperty", null, null);
+		checkBindNestedField("stringProperty", "test", "test");
+
+		// Numbers
+		checkInvalidBindField("integerProperty", "");
+		checkInvalidBindField("integerProperty", "test");
+		checkBindNestedField("integerProperty", new String[] { null });
+		checkBindNestedField("integerProperty", null, null);
+		checkBindNestedField("integerProperty", "17");
+		checkBindNestedField("integerProperty", "-1", "17", "9");
+	}
+
+	// Helper methods
+
+	private void checkBindNestedField(String nestedPropertyName,
+			String... values) throws Exception
+	{
+		binder.bindField(target, "nestedProperty." + nestedPropertyName, values);
+		checkNestedField(nestedPropertyName, values);
+	}
+
+	private void checkNestedField(String nestedPropertyName, String... values)
+			throws Exception
+	{
+		NestedPojo nested = target.getNestedProperty();
+
+		Object setValue = ReflectionUtils.getProperty(nested,
+				nestedPropertyName);
+		Class<?> type = ReflectionUtils.getFieldType(nestedPropertyName,
+				nested.getClass());
+
+		assertEquals(setValue, ReflectionUtils.fromString(type, values[0]));
+	}
 }

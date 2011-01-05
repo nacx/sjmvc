@@ -42,172 +42,186 @@ import org.sjmvc.util.ReflectionUtils;
  */
 public abstract class AbstractBinder<T, S> implements Binder<T, S>
 {
-    /** The object target of the binding. */
-    protected T target;
+	/** The object target of the binding. */
+	protected T target;
 
-    /** The source if the binding. */
-    protected S source;
+	/** The source if the binding. */
+	protected S source;
 
-    /** The binding errors. */
-    protected Errors errors;
+	/** The binding errors. */
+	protected Errors errors;
 
-    /**
-     * Creates the binder.
-     * 
-     * @param target The target of the binding.
-     * @param source The source of the binding.
-     */
-    public AbstractBinder(T target, S source)
-    {
-        super();
-        this.target = target;
-        this.source = source;
-        errors = new Errors();
-    }
+	/**
+	 * Creates the binder.
+	 * 
+	 * @param target The target of the binding.
+	 * @param source The source of the binding.
+	 */
+	public AbstractBinder(T target, S source)
+	{
+		super();
+		this.target = target;
+		this.source = source;
+		errors = new Errors();
+	}
 
-    @Override
-    public BindingResult<T> bind()
-    {
-        doBind();
+	@Override
+	public BindingResult<T> bind()
+	{
+		doBind();
 
-        BindingResult<T> result = new BindingResult<T>();
-        result.setTarget(target);
-        result.setErrors(errors);
+		BindingResult<T> result = new BindingResult<T>();
+		result.setTarget(target);
+		result.setErrors(errors);
 
-        return result;
-    }
+		return result;
+	}
 
-    /**
-     * Executes the bind.
-     * <p>
-     * This method must be implemented by the {@link Binder} implementations to perform the binding
-     * operation in the {@link #target} object, saving all errors in the {@link #errors} object.
-     */
-    protected abstract void doBind();
+	/**
+	 * Executes the bind.
+	 * <p>
+	 * This method must be implemented by the {@link Binder} implementations to
+	 * perform the binding operation in the {@link #target} object, saving all
+	 * errors in the {@link #errors} object.
+	 */
+	protected abstract void doBind();
 
-    /**
-     * Binds the given field to the given value in the target object.
-     * 
-     * @param currentObject The current object being processed.
-     * @param name The name of the field to bind.
-     * @param values The values to bind to the field.
-     */
-    protected void bindField(Object currentObject, String name, String[] values)
-    {
-        String[] path = name.split("\\.");
+	/**
+	 * Binds the given field to the given value in the target object.
+	 * 
+	 * @param currentObject The current object being processed.
+	 * @param name The name of the field to bind.
+	 * @param values The values to bind to the field.
+	 */
+	protected void bindField(Object currentObject, String name,
+			String... values)
+	{
+		String[] path = name.split("\\.");
 
-        try
-        {
-            if (path.length == 1)
-            {
-                // Bind simple property
-                setValue(currentObject, path[0], values);
-            }
-            else
-            {
-                // Recursively bind the nested values
-                String remainingPath = StringUtils.join(path, "", 1, path.length);
-                Object nestedObject = ReflectionUtils.getProperty(currentObject, path[0]);
+		try
+		{
+			if (path.length == 1)
+			{
+				// Bind simple property
+				setValue(currentObject, path[0], values);
+			}
+			else
+			{
+				// Recursively bind the nested values
+				String remainingPath = StringUtils.join(path, "", 1,
+						path.length);
+				Object nestedObject = ReflectionUtils.getProperty(
+						currentObject, path[0]);
 
-                // If nested object is null, create it
-                if (nestedObject == null)
-                {
-                    Class< ? > nestedType =
-                        ReflectionUtils.getFieldType(path[0], currentObject.getClass());
-                    nestedObject = nestedType.newInstance();
-                }
+				// If nested object is null, create it
+				if (nestedObject == null)
+				{
+					Class<?> nestedType = ReflectionUtils.getFieldType(path[0],
+							currentObject.getClass());
+					nestedObject = nestedType.newInstance();
 
-                bindField(nestedObject, remainingPath, values);
-            }
-        }
-        catch (Exception ex)
-        {
-            errors.add(ex.getMessage(), ex);
-        }
-    }
+					ReflectionUtils.setValue(currentObject, path[0],
+							nestedObject);
+				}
 
-    /**
-     * Sets the given value to the given field.
-     * 
-     * @param currentObject The current object being processed.
-     * @param name The name of the field.
-     * @param values The values to set.
-     * @throws BindingError If the value of the property cannot be set.
-     */
-    @SuppressWarnings("unchecked")
-    protected void setValue(Object currentObject, String name, String values[]) throws BindingError
-    {
-        try
-        {
-            Field field = currentObject.getClass().getDeclaredField(name);
-            int modifiers = field.getModifiers();
+				bindField(nestedObject, remainingPath, values);
+			}
+		}
+		catch (Exception ex)
+		{
+			errors.add(ex.getMessage(), ex);
+		}
+	}
 
-            if (!Modifier.isTransient(modifiers) && !Modifier.isStatic(modifiers))
-            {
-                // If property is a collection, iterate over the values
-                if (Collection.class.isAssignableFrom(field.getType()))
-                {
-                    // Get the type of the elements in the collection
-                    Class< ? > elementsType =
-                        ReflectionUtils.getFieldCollectionType(name, currentObject.getClass());
+	/**
+	 * Sets the given value to the given field.
+	 * 
+	 * @param currentObject The current object being processed.
+	 * @param name The name of the field.
+	 * @param values The values to set.
+	 * @throws BindingError If the value of the property cannot be set.
+	 */
+	@SuppressWarnings("unchecked")
+	protected void setValue(Object currentObject, String name, String values[])
+			throws BindingError
+	{
+		try
+		{
+			Field field = currentObject.getClass().getDeclaredField(name);
+			int modifiers = field.getModifiers();
 
-                    // Get the collection and clear it
-                    Collection<Object> col =
-                        (Collection<Object>) ReflectionUtils.getProperty(currentObject, name);
+			if (!Modifier.isTransient(modifiers)
+					&& !Modifier.isStatic(modifiers))
+			{
+				// If property is a collection, iterate over the values
+				if (Collection.class.isAssignableFrom(field.getType()))
+				{
+					// Get the type of the elements in the collection
+					Class<?> elementsType = ReflectionUtils
+							.getFieldCollectionType(name,
+									currentObject.getClass());
 
-                    if (col == null)
-                    {
-                        col = new ArrayList<Object>();
-                    }
+					// Get the collection and clear it
+					Collection<Object> col = (Collection<Object>) ReflectionUtils
+							.getProperty(currentObject, name);
 
-                    // Add the values to the collection
-                    col.clear();
+					if (col == null)
+					{
+						col = new ArrayList<Object>();
+					}
 
-                    for (String currentValue : values)
-                    {
-                        col.add(ReflectionUtils.fromString(elementsType, currentValue));
-                    }
+					// Add the values to the collection
+					col.clear();
 
-                    // Save the collection in the object
-                    ReflectionUtils.setValue(currentObject, name, col);
-                }
-                else if (field.getType().isArray())
-                {
-                    Class< ? > elementsType = field.getType().getComponentType();
-                    Object array = Array.newInstance(elementsType, values.length);
+					for (String currentValue : values)
+					{
+						col.add(ReflectionUtils.fromString(elementsType,
+								currentValue));
+					}
 
-                    for (int i = 0; i < values.length; i++)
-                    {
-                        Array.set(array, i, ReflectionUtils.fromString(elementsType, values[i]));
-                    }
+					// Save the collection in the object
+					ReflectionUtils.setValue(currentObject, name, col);
+				}
+				else if (field.getType().isArray())
+				{
+					Class<?> elementsType = field.getType().getComponentType();
+					Object array = Array.newInstance(elementsType,
+							values.length);
 
-                    // Save the array in the object
-                    ReflectionUtils.setValue(currentObject, name, array);
-                }
-                else
-                {
-                    // Value should be a single element array
-                    ReflectionUtils.transformAndSet(currentObject, name, values[0]);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new BindingError("Could not bind property [" + name + "] of ["
-                + currentObject.getClass().getName() + "]", ex);
-        }
-    }
+					for (int i = 0; i < values.length; i++)
+					{
+						Array.set(array, i, ReflectionUtils.fromString(
+								elementsType, values[i]));
+					}
 
-    @Override
-    public S getSource()
-    {
-        return source;
-    }
+					// Save the array in the object
+					ReflectionUtils.setValue(currentObject, name, array);
+				}
+				else
+				{
+					// Value should be a single element array
+					ReflectionUtils.transformAndSet(currentObject, name,
+							values[0]);
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			throw new BindingError("Could not bind property [" + name
+					+ "] of [" + currentObject.getClass().getName() + "]", ex);
+		}
+	}
 
-    @Override
-    public T getTarget()
-    {
-        return target;
-    }
+	@Override
+	public S getSource()
+	{
+		return source;
+	}
+
+	@Override
+	public T getTarget()
+	{
+		return target;
+	}
 
 }

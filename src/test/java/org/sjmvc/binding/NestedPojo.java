@@ -31,22 +31,35 @@ import java.io.Serializable;
  */
 public class NestedPojo implements Serializable
 {
-    /** Serial UID. */
-    private static final long serialVersionUID = 1L;
+	/** Serial UID. */
+	private static final long serialVersionUID = 1L;
 
-    /** A String property. */
-    private String stringProperty;
+	/** A String property. */
+	private String stringProperty;
 
-    // Getters and setters
+	/** An Integer property. */
+	private String integerProperty;
 
-    public String getStringProperty()
-    {
-        return stringProperty;
-    }
+	// Getters and setters
 
-    public void setStringProperty(String stringProperty)
-    {
-        this.stringProperty = stringProperty;
-    }
+	public String getStringProperty()
+	{
+		return stringProperty;
+	}
+
+	public void setStringProperty(String stringProperty)
+	{
+		this.stringProperty = stringProperty;
+	}
+
+	public String getIntegerProperty()
+	{
+		return integerProperty;
+	}
+
+	public void setIntegerProperty(String integerProperty)
+	{
+		this.integerProperty = integerProperty;
+	}
 
 }

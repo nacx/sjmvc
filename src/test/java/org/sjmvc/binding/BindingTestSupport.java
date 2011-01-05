@@ -37,7 +37,6 @@ import org.sjmvc.util.ReflectionUtils;
  * @author Ignasi Barrera
  * 
  * @param <T> The type of the target object used in tests.
- * 
  */
 public class BindingTestSupport<T>
 {
@@ -51,12 +50,7 @@ public class BindingTestSupport<T>
 			throws Exception
 	{
 		binder.setValue(target, propertyName, new String[] { value });
-
-		Object setValue = ReflectionUtils.getProperty(target, propertyName);
-		Class<?> type = ReflectionUtils.getFieldType(propertyName,
-				target.getClass());
-
-		assertEquals(setValue, ReflectionUtils.fromString(type, value));
+		checkValue(propertyName, value);
 	}
 
 	protected void checkInvalidSetValue(String propertyName, String value)
@@ -77,20 +71,7 @@ public class BindingTestSupport<T>
 			String... values) throws Exception
 	{
 		binder.setValue(target, propertyName, values);
-
-		Collection<?> setValue = (Collection<?>) ReflectionUtils.getProperty(
-				target, propertyName);
-		Class<?> type = ReflectionUtils.getFieldCollectionType(propertyName,
-				target.getClass());
-
-		assertEquals(setValue.size(), values.length);
-
-		int i = 0;
-		for (Object elem : setValue)
-		{
-			Object value = ReflectionUtils.fromString(type, values[i++]);
-			assertEquals(elem, value);
-		}
+		checkCollection(propertyName, values);
 	}
 
 	protected void checkInvalidSetCollectionValues(String propertyName,
@@ -111,18 +92,7 @@ public class BindingTestSupport<T>
 			throws Exception
 	{
 		binder.setValue(target, propertyName, values);
-
-		Object setValue = ReflectionUtils.getProperty(target, propertyName);
-		Class<?> type = ReflectionUtils.getFieldArrayType(propertyName,
-				target.getClass());
-
-		assertEquals(Array.getLength(setValue), values.length);
-
-		for (int i = 0; i < values.length; i++)
-		{
-			Object value = ReflectionUtils.fromString(type, values[i]);
-			assertEquals(Array.get(setValue, i), value);
-		}
+		checkArray(propertyName, values);
 	}
 
 	protected void checkInvalidSetArrayValues(String propertyName,
@@ -143,18 +113,71 @@ public class BindingTestSupport<T>
 			throws Exception
 	{
 		binder.bindField(target, propertyName, values);
-
-		Object setValue = ReflectionUtils.getProperty(target, propertyName);
-		Class<?> type = ReflectionUtils.getFieldType(propertyName,
-				target.getClass());
-
-		assertEquals(setValue, ReflectionUtils.fromString(type, values[0]));
+		checkValue(propertyName, values[0]);
 	}
 
-	protected void checkInvalidBindSimpleField(String propertyName,
+	protected void checkBindCollectionField(String propertyName,
 			String... values) throws Exception
+	{
+		binder.bindField(target, propertyName, values);
+		checkCollection(propertyName, values);
+	}
+
+	protected void checkBindArrayField(String propertyName, String... values)
+			throws Exception
+	{
+		binder.bindField(target, propertyName, values);
+		checkArray(propertyName, values);
+	}
+
+	protected void checkInvalidBindField(String propertyName, String... values)
+			throws Exception
 	{
 		binder.bindField(target, propertyName, values);
 		assertTrue(binder.errors.hasErrors());
 	}
+
+	private void checkValue(String propertyName, String value) throws Exception
+	{
+		Object setValue = ReflectionUtils.getProperty(target, propertyName);
+		Class<?> type = ReflectionUtils.getFieldType(propertyName,
+				target.getClass());
+
+		assertEquals(setValue, ReflectionUtils.fromString(type, value));
+	}
+
+	private void checkCollection(String propertyName, String... values)
+			throws Exception
+	{
+		Collection<?> setValue = (Collection<?>) ReflectionUtils.getProperty(
+				target, propertyName);
+		Class<?> type = ReflectionUtils.getFieldCollectionType(propertyName,
+				target.getClass());
+
+		assertEquals(setValue.size(), values.length);
+
+		int i = 0;
+		for (Object elem : setValue)
+		{
+			Object value = ReflectionUtils.fromString(type, values[i++]);
+			assertEquals(elem, value);
+		}
+	}
+
+	private void checkArray(String propertyName, String... values)
+			throws Exception
+	{
+		Object setValue = ReflectionUtils.getProperty(target, propertyName);
+		Class<?> type = ReflectionUtils.getFieldArrayType(propertyName,
+				target.getClass());
+
+		assertEquals(Array.getLength(setValue), values.length);
+
+		for (int i = 0; i < values.length; i++)
+		{
+			Object value = ReflectionUtils.fromString(type, values[i]);
+			assertEquals(Array.get(setValue, i), value);
+		}
+	}
+
 }
