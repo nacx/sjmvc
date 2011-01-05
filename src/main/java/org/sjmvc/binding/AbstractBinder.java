@@ -36,7 +36,7 @@ import org.sjmvc.util.ReflectionUtils;
  * Base class for {@link Binder} implementations.
  * 
  * @author Ignasi Barrera
- * @see Binder
+ * 
  * @see BindingResult
  * @see BindingError
  */

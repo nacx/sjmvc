@@ -35,66 +35,66 @@ import org.sjmvc.controller.Controller;
  */
 public class Errors implements Serializable
 {
-    /** Serial UID. */
-    private static final long serialVersionUID = 1L;
+	/** Serial UID. */
+	private static final long serialVersionUID = 1L;
 
-    /** The list of errors. */
-    private List<Exception> errors = new LinkedList<Exception>();
+	/** The list of errors. */
+	private List<Exception> errors = new LinkedList<Exception>();
 
-    /**
-     * Adds the given error to the {@link #errors} list.
-     * 
-     * @param error The error to add.
-     */
-    public void add(final String error)
-    {
-        errors.add(new Exception(error));
-    }
+	/**
+	 * Adds the given error to the {@link #errors} list.
+	 * 
+	 * @param error The error to add.
+	 */
+	public void add(final String error)
+	{
+		errors.add(new Exception(error));
+	}
 
-    /**
-     * Adds the given error to the {@link #errors} list.
-     * 
-     * @param error The error to add.
-     * @param cause The error cause.
-     */
-    public void add(final String error, final Exception cause)
-    {
-        errors.add(new Exception(error, cause));
-    }
+	/**
+	 * Adds the given error to the {@link #errors} list.
+	 * 
+	 * @param error The error to add.
+	 * @param cause The error cause.
+	 */
+	public void add(final String error, final Exception cause)
+	{
+		errors.add(new Exception(error, cause));
+	}
 
-    /**
-     * Checks if there are any errors.
-     * 
-     * @return Boolean indicating if there are any errors.
-     */
-    public boolean hasErrors()
-    {
-        return !errors.isEmpty();
-    }
+	/**
+	 * Checks if there are any errors.
+	 * 
+	 * @return Boolean indicating if there are any errors.
+	 */
+	public boolean hasErrors()
+	{
+		return !errors.isEmpty();
+	}
 
-    /**
-     * Clear the list of errors.
-     */
-    public void clear()
-    {
-        errors.clear();
-    }
+	/**
+	 * Clear the list of errors.
+	 */
+	public void clear()
+	{
+		errors.clear();
+	}
 
-    /**
-     * Get the number of errors.
-     * 
-     * @return The number of errors.
-     */
-    public int errorCount()
-    {
-        return errors.size();
-    }
+	/**
+	 * Get the number of errors.
+	 * 
+	 * @return The number of errors.
+	 */
+	public int errorCount()
+	{
+		return errors.size();
+	}
 
-    // Getters and setters
+	// Getters and setters
 
-    public List<Exception> getErrors()
-    {
-        return errors;
-    }
+	public List<Exception> getErrors()
+	{
+		return errors;
+	}
 
 }

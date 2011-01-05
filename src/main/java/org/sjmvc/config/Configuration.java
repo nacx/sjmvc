@@ -31,29 +31,31 @@ import org.sjmvc.controller.Controller;
  */
 public class Configuration
 {
-    /** The main configuration file. */
-    public static final String CONFIG_FILE = "sjmvc.properties";
+	/** The main configuration file. */
+	public static final String CONFIG_FILE = "sjmvc.properties";
 
-    /** The prefix for controller mapping properties. */
-    public static final String CONTROLLER_PREFIX = "sjmvc.controller.";
+	/** The prefix for controller mapping properties. */
+	public static final String CONTROLLER_PREFIX = "sjmvc.controller.";
 
-    /** The suffix for controller path mapping properties. */
-    public static final String CONTROLLER_PATH_SUFFIX = ".path";
+	/** The suffix for controller path mapping properties. */
+	public static final String CONTROLLER_PATH_SUFFIX = ".path";
 
-    /** The suffix for controller class mapping properties. */
-    public static final String CONTROLLER_CLASS_SUFFIX = ".class";
+	/** The suffix for controller class mapping properties. */
+	public static final String CONTROLLER_CLASS_SUFFIX = ".class";
 
-    /** Name of the property that holds the main layout file. */
-    public static final String LAYOUT_PROPERTY = "sjmvc.layout.main";
+	/** Name of the property that holds the main layout file. */
+	public static final String LAYOUT_PROPERTY = "sjmvc.layout.main";
 
-    /**
-     * Checks if the given property defines a {@link Controller} mapping.
-     * 
-     * @param property The property to check.
-     * @return Boolean indicating if the given property defines a <code>Controller</code> mapping.
-     */
-    public static boolean isControllerProperty(String property)
-    {
-        return property.startsWith(CONTROLLER_PREFIX) && property.endsWith(CONTROLLER_PATH_SUFFIX);
-    }
+	/**
+	 * Checks if the given property defines a {@link Controller} mapping.
+	 * 
+	 * @param property The property to check.
+	 * @return Boolean indicating if the given property defines a
+	 *         <code>Controller</code> mapping.
+	 */
+	public static boolean isControllerProperty(String property)
+	{
+		return property.startsWith(CONTROLLER_PREFIX)
+				&& property.endsWith(CONTROLLER_PATH_SUFFIX);
+	}
 }

@@ -27,53 +27,55 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 
 /**
- * {@link Binder} implementation that binds request parameters to the defined target object.
+ * {@link Binder} implementation that binds request parameters to the defined
+ * target object.
  * 
  * @author Ignasi Barrera
- * @see AbstractBinder
+ * 
  * @see Binder
  * @see BindingResult
  * @see BindingError
  */
-public class RequestParameterBinder<T> extends AbstractBinder<T, ServletRequest>
+public class RequestParameterBinder<T> extends
+		AbstractBinder<T, ServletRequest>
 {
-    /** Prefix for the parameters that will be included in the binding process. */
-    private static final String BIND_PARAMETER_PREFIX = "model.";
+	/** Prefix for the parameters that will be included in the binding process. */
+	private static final String BIND_PARAMETER_PREFIX = "model.";
 
-    /**
-     * Creates the binder.
-     * 
-     * @param target The target of the binding.
-     * @param source The request source of the binding.
-     */
-    public RequestParameterBinder(T target, ServletRequest source)
-    {
-        super(target, source);
-    }
+	/**
+	 * Creates the binder.
+	 * 
+	 * @param target The target of the binding.
+	 * @param source The request source of the binding.
+	 */
+	public RequestParameterBinder(T target, ServletRequest source)
+	{
+		super(target, source);
+	}
 
-    /**
-     * Bind the given parameter map to the target object.
-     * 
-     * @param parameters The parameter map to bind.
-     * @return The binding result.
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    protected void doBind()
-    {
-        Map<String, String[]> parameters = source.getParameterMap();
+	/**
+	 * Bind the given parameter map to the target object.
+	 * 
+	 * @param parameters The parameter map to bind.
+	 * @return The binding result.
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected void doBind()
+	{
+		Map<String, String[]> parameters = source.getParameterMap();
 
-        for (Map.Entry<String, String[]> param : parameters.entrySet())
-        {
-            String name = param.getKey();
-            String[] values = param.getValue();
+		for (Map.Entry<String, String[]> param : parameters.entrySet())
+		{
+			String name = param.getKey();
+			String[] values = param.getValue();
 
-            // Only bind the bindable parameters
-            if (name.startsWith(BIND_PARAMETER_PREFIX))
-            {
-                bindField(target, name, values);
-            }
-        }
-    }
+			// Only bind the bindable parameters
+			if (name.startsWith(BIND_PARAMETER_PREFIX))
+			{
+				bindField(target, name, values);
+			}
+		}
+	}
 
 }

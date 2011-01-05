@@ -28,47 +28,50 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Controller that delegates execution to a specific method based on the request path.
+ * Controller that delegates execution to a specific method based on the request
+ * path.
  * 
  * @author Ignasi Barrera
+ * 
+ * @see Controller
  */
 public class MethodInvokingController extends AbstractController
 {
 
-    @Override
-    public void doExecute(final HttpServletRequest request, final HttpServletResponse response)
-        throws Exception
-    {
-        // Get the name of the method
-        int lastSlash = request.getRequestURI().lastIndexOf("/");
-        String methodName = request.getRequestURI().substring(lastSlash + 1);
+	@Override
+	public void doExecute(final HttpServletRequest request,
+			final HttpServletResponse response) throws Exception
+	{
+		// Get the name of the method
+		int lastSlash = request.getRequestURI().lastIndexOf("/");
+		String methodName = request.getRequestURI().substring(lastSlash + 1);
 
-        // Find the target method
-        Method targetMethod = null;
+		// Find the target method
+		Method targetMethod = null;
 
-        for (Method method : this.getClass().getMethods())
-        {
-            if (method.getName().equals(methodName))
-            {
-                targetMethod = method;
-                break;
-            }
-        }
+		for (Method method : this.getClass().getMethods())
+		{
+			if (method.getName().equals(methodName))
+			{
+				targetMethod = method;
+				break;
+			}
+		}
 
-        if (targetMethod == null)
-        {
-            String message =
-                "Could not find a Controller method with name " + methodName + " in class "
-                    + this.getClass().getName();
+		if (targetMethod == null)
+		{
+			String message = "Could not find a Controller method with name "
+					+ methodName + " in class " + this.getClass().getName();
 
-            throw new ControllerException(message, new NoSuchMethodException(message));
-        }
+			throw new ControllerException(message, new NoSuchMethodException(
+					message));
+		}
 
-        // Set the default view to return
-        setView(methodName);
+		// Set the default view to return
+		setView(methodName);
 
-        // Execute the target method (parent class will handle exceptions)
-        targetMethod.invoke(this, request, response);
-    }
+		// Execute the target method (parent class will handle exceptions)
+		targetMethod.invoke(this, request, response);
+	}
 
 }

@@ -32,14 +32,15 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface Controller
 {
-    /**
-     * Executes the controller logic and returns a view.
-     * 
-     * @param request The request.
-     * @param response The response.
-     * @return The name of the view to render.
-     * @throws ControllerException If an error occurs while executing controller logic.
-     */
-    public String execute(HttpServletRequest request, HttpServletResponse response)
-        throws ControllerException;
+	/**
+	 * Executes the controller logic and returns a view.
+	 * 
+	 * @param request The request.
+	 * @param response The response.
+	 * @return The name of the view to render.
+	 * @throws ControllerException If an error occurs while executing controller
+	 *             logic.
+	 */
+	public String execute(HttpServletRequest request,
+			HttpServletResponse response) throws ControllerException;
 }

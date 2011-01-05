@@ -29,38 +29,38 @@ package org.sjmvc.binding;
  */
 public class BindingError extends Exception
 {
-    /** Serial UID. */
-    private static final long serialVersionUID = 1L;
+	/** Serial UID. */
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * Creates a new <code>BindingError</code> with the given message and cause.
-     * 
-     * @param msg The exception message.
-     * @param cause The exception cause.
-     */
-    public BindingError(final String msg, final Throwable cause)
-    {
-        super(msg, cause);
-    }
+	/**
+	 * Creates a new <code>BindingError</code> with the given message and cause.
+	 * 
+	 * @param msg The exception message.
+	 * @param cause The exception cause.
+	 */
+	public BindingError(final String msg, final Throwable cause)
+	{
+		super(msg, cause);
+	}
 
-    /**
-     * Creates a new <code>BindingError</code> with the given message.
-     * 
-     * @param msg The exception message.
-     */
-    public BindingError(final String msg)
-    {
-        super(msg);
-    }
+	/**
+	 * Creates a new <code>BindingError</code> with the given message.
+	 * 
+	 * @param msg The exception message.
+	 */
+	public BindingError(final String msg)
+	{
+		super(msg);
+	}
 
-    /**
-     * Creates a new <code>BindingError</code> with the given cause.
-     * 
-     * @param cause The exception cause.
-     */
-    public BindingError(final Throwable cause)
-    {
-        super(cause);
-    }
+	/**
+	 * Creates a new <code>BindingError</code> with the given cause.
+	 * 
+	 * @param cause The exception cause.
+	 */
+	public BindingError(final Throwable cause)
+	{
+		super(cause);
+	}
 
 }
