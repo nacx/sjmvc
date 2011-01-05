@@ -67,12 +67,13 @@ public class RequestParameterBinder<T> extends
 
 		for (Map.Entry<String, String[]> param : parameters.entrySet())
 		{
-			String name = param.getKey();
+			String paramName = param.getKey();
 			String[] values = param.getValue();
 
 			// Only bind the bindable parameters
-			if (name.startsWith(BIND_PARAMETER_PREFIX))
+			if (paramName.startsWith(BIND_PARAMETER_PREFIX))
 			{
+				String name = paramName.replaceFirst(BIND_PARAMETER_PREFIX, "");
 				bindField(target, name, values);
 			}
 		}
