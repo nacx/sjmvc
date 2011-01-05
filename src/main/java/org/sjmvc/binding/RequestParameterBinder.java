@@ -60,9 +60,9 @@ public class RequestParameterBinder<T> extends
 	 * @return The binding result.
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected void doBind()
 	{
+		@SuppressWarnings("unchecked")
 		Map<String, String[]> parameters = source.getParameterMap();
 
 		for (Map.Entry<String, String[]> param : parameters.entrySet())

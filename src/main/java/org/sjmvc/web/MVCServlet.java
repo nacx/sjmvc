@@ -177,7 +177,6 @@ public class MVCServlet extends HttpServlet
 	 * 
 	 * @throws Exception If mappings cannot be loaded.
 	 */
-	@SuppressWarnings("unchecked")
 	protected void readConfiguration() throws Exception
 	{
 		Properties config = new Properties();
@@ -203,6 +202,7 @@ public class MVCServlet extends HttpServlet
 							+ path);
 				}
 
+				@SuppressWarnings("unchecked")
 				Class<Controller> controllerClass = (Class<Controller>) Class
 						.forName(clazz, true, cl);
 
