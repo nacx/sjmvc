@@ -22,11 +22,21 @@
 
 package org.sjmvc.binding;
 
+import static org.testng.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.ServletRequest;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.meterware.httpunit.PostMethodWebRequest;
+import com.meterware.httpunit.WebRequest;
 import com.meterware.servletunit.ServletRunner;
 import com.meterware.servletunit.ServletUnitClient;
 
@@ -41,26 +51,73 @@ public class RequestParameterBinderTest
 	private static final String BASE_PATH = "http://sjmvc.org/sjmvc/web";
 
 	/** The binder to test. */
-	private RequestParameterBinder<BindPojo> binder;
+	private RequestParameterBinderTestSupport binder;
 
 	/** The target of the binding. */
 	private BindPojo target;
 
-	/** The source of the binding. */
-	private ServletRequest request;
-
 	@BeforeMethod
 	public void setUp() throws Exception
 	{
-		ServletUnitClient sc = new ServletRunner().newClient();
-		request = sc.newInvocation(BASE_PATH).getRequest();
 		target = new BindPojo();
-		binder = new RequestParameterBinder<BindPojo>(target, request);
 	}
 
 	@Test
-	public void testDoBind()
+	public void testDoBind() throws Exception
 	{
+		checkDoBind(new String[] {});
+		checkDoBind("stringProperty");
+		checkDoBind("stringProperty", "integerProperty");
+		checkDoBind("stringList", "integerList");
+		checkDoBind("stringList", "integerProperty",
+				"nestedProperty.stringProperty");
+	}
 
+	private void checkDoBind(String... parameters) throws Exception
+	{
+		// Build the request parameter map
+		Map<String, String[]> paramMap = new HashMap<String, String[]>();
+		for (String parameter : parameters)
+		{
+			paramMap.put("model." + parameter, new String[] { parameter });
+		}
+
+		// Create the binder
+		initBinder(paramMap);
+
+		// Execute binding and check results
+		binder.doBind();
+
+		assertEquals(parameters.length, binder.parameters.size());
+
+		List<String> paramList = Arrays.asList(parameters);
+		Collections.sort(paramList, String.CASE_INSENSITIVE_ORDER);
+		Collections.sort(binder.parameters, String.CASE_INSENSITIVE_ORDER);
+
+		int i = 0;
+		for (String param : paramList)
+		{
+			assertEquals(param, binder.parameters.get(i++));
+		}
+	}
+
+	private void initBinder(Map<String, String[]> parameters) throws Exception
+	{
+		ServletRequest request = getRequest(parameters);
+		binder = new RequestParameterBinderTestSupport(target, request);
+	}
+
+	private ServletRequest getRequest(Map<String, String[]> parameters)
+			throws Exception
+	{
+		ServletUnitClient sc = new ServletRunner().newClient();
+		WebRequest request = new PostMethodWebRequest(BASE_PATH);
+
+		for (Map.Entry<String, String[]> param : parameters.entrySet())
+		{
+			request.setParameter(param.getKey(), param.getValue());
+		}
+
+		return sc.newInvocation(request).getRequest();
 	}
 }

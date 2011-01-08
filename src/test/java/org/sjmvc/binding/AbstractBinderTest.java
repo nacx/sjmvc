@@ -49,6 +49,15 @@ public class AbstractBinderTest extends BindingTestSupport<BindPojo>
 	}
 
 	@Test
+	public void testBindtUnexistingProperty() throws Exception
+	{
+		checkInvalidSetValue("unexistingString", "");
+		checkInvalidBindField("unexistingProperty", "");
+		checkInvalidBindField("unexistingProperty.nested", "");
+		checkInvalidBindField("nestedProperty.unexistingProperty", "");
+	}
+
+	@Test
 	public void testSetSimpleValue() throws Exception
 	{
 		// Strings
