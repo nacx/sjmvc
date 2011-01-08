@@ -27,22 +27,19 @@ import java.util.List;
 
 import javax.servlet.ServletRequest;
 
-import org.sjmvc.TestPojo;
-
 /**
  * Support class for the {@link RequestParameterBinder} unit tests.
  * 
  * @author Ignasi Barrera
  * 
  */
-public class RequestParameterBinderTestSupport extends
-		RequestParameterBinder<TestPojo>
+public class RequestParameterBinderTestSupport<T> extends
+		RequestParameterBinder<T>
 {
 	/** The list of bindable parameters. */
 	protected List<String> parameters;
 
-	public RequestParameterBinderTestSupport(TestPojo target,
-			ServletRequest source)
+	public RequestParameterBinderTestSupport(T target, ServletRequest source)
 	{
 		super(target, source);
 		parameters = new ArrayList<String>();

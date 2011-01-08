@@ -67,6 +67,17 @@ public class TestPojo implements Serializable
 	/** An array of Integers. */
 	private Integer[] integerArray;
 
+	/**
+	 * Sets teh required fields to pass validation.
+	 */
+	public void setRequiredFields()
+	{
+		setStringProperty("abc");
+		setIntegerProperty(2);
+		setNestedProperty(new NestedTestPojo());
+		getNestedProperty().setStringProperty(new String());
+	}
+
 	// Getters and setters
 
 	public String getStringProperty()

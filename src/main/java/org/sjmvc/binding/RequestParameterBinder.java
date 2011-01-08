@@ -40,7 +40,7 @@ public class RequestParameterBinder<T> extends
 		AbstractBinder<T, ServletRequest>
 {
 	/** Prefix for the parameters that will be included in the binding process. */
-	private static final String BIND_PARAMETER_PREFIX = "model.";
+	public static final String BIND_PARAMETER_PREFIX = "model.";
 
 	/**
 	 * Creates the binder.

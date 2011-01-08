@@ -24,7 +24,6 @@ package org.sjmvc.validation;
 
 import static org.testng.Assert.assertEquals;
 
-import org.sjmvc.NestedTestPojo;
 import org.sjmvc.TestPojo;
 import org.sjmvc.error.Errors;
 import org.testng.annotations.BeforeMethod;
@@ -49,12 +48,7 @@ public class JPAValidatorTest
 	{
 		validator = new JPAValidator();
 		target = new TestPojo();
-		target.setNestedProperty(new NestedTestPojo());
-
-		// Build a valid pojo
-		target.setStringProperty("abc");
-		target.setIntegerProperty(2);
-		target.getNestedProperty().setStringProperty(new String());
+		target.setRequiredFields();
 	}
 
 	@Test

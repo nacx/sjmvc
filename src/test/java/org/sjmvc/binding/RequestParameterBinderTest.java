@@ -26,36 +26,19 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletRequest;
 
 import org.sjmvc.TestPojo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.meterware.httpunit.PostMethodWebRequest;
-import com.meterware.httpunit.WebRequest;
-import com.meterware.servletunit.ServletRunner;
-import com.meterware.servletunit.ServletUnitClient;
 
 /**
  * Unit tests for the {@link RequestParameterBinder} class.
  * 
  * @author Ignasi Barrera
  */
-public class RequestParameterBinderTest
+public class RequestParameterBinderTest extends RequestBinderTestBase<TestPojo>
 {
-	/** The base path used for web requests. */
-	private static final String BASE_PATH = "http://sjmvc.org/sjmvc/web";
-
-	/** The binder to test. */
-	private RequestParameterBinderTestSupport binder;
-
-	/** The target of the binding. */
-	private TestPojo target;
 
 	@BeforeMethod
 	public void setUp() throws Exception
@@ -76,17 +59,8 @@ public class RequestParameterBinderTest
 
 	private void checkDoBind(String... parameters) throws Exception
 	{
-		// Build the request parameter map
-		Map<String, String[]> paramMap = new HashMap<String, String[]>();
-		for (String parameter : parameters)
-		{
-			paramMap.put("model." + parameter, new String[] { parameter });
-		}
-
-		// Create the binder
-		initBinder(paramMap);
-
-		// Execute binding and check results
+		// Build the request parameter map and bind to the model object
+		initBinder(parameters);
 		binder.doBind();
 
 		assertEquals(parameters.length, binder.parameters.size());
@@ -100,25 +74,5 @@ public class RequestParameterBinderTest
 		{
 			assertEquals(param, binder.parameters.get(i++));
 		}
-	}
-
-	private void initBinder(Map<String, String[]> parameters) throws Exception
-	{
-		ServletRequest request = getRequest(parameters);
-		binder = new RequestParameterBinderTestSupport(target, request);
-	}
-
-	private ServletRequest getRequest(Map<String, String[]> parameters)
-			throws Exception
-	{
-		ServletUnitClient sc = new ServletRunner().newClient();
-		WebRequest request = new PostMethodWebRequest(BASE_PATH);
-
-		for (Map.Entry<String, String[]> param : parameters.entrySet())
-		{
-			request.setParameter(param.getKey(), param.getValue());
-		}
-
-		return sc.newInvocation(request).getRequest();
 	}
 }

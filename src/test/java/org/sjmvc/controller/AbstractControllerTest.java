@@ -22,7 +22,16 @@
 
 package org.sjmvc.controller;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.sjmvc.TestPojo;
+import org.sjmvc.binding.RequestBinderTestBase;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Unit tests for the {@link AbstractController} class.
@@ -30,7 +39,7 @@ import org.testng.annotations.BeforeMethod;
  * @author Ignasi Barrera
  * 
  */
-public class AbstractControllerTest
+public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 {
 	/** The controller to test. */
 	private MockController controller;
@@ -39,7 +48,83 @@ public class AbstractControllerTest
 	public void setUp()
 	{
 		controller = new MockController();
+		target = new TestPojo();
 	}
 
-	// TODO: test bindAndValidate method
+	@Test
+	public void testBind() throws Exception
+	{
+		HttpServletRequest request = getRequest("stringProperty");
+		controller.bind(target, request);
+
+		assertFalse(controller.errors.hasErrors());
+		assertEquals(target.getStringProperty(), "stringProperty");
+	}
+
+	@Test
+	public void testInvalidBind() throws Exception
+	{
+		HttpServletRequest request = getRequest("unexistingProperty");
+		controller.bind(target, request);
+
+		assertTrue(controller.errors.hasErrors());
+		assertEquals(controller.errors.errorCount(), 1);
+	}
+
+	@Test
+	public void testValidate() throws Exception
+	{
+		target.setRequiredFields();
+		controller.validate(target);
+
+		assertFalse(controller.errors.hasErrors());
+	}
+
+	@Test
+	public void testInvalidValidate() throws Exception
+	{
+		controller.validate(target);
+
+		assertTrue(controller.errors.hasErrors());
+		assertEquals(controller.errors.errorCount(), 2);
+	}
+
+	@Test
+	public void testBindAndValidateInvalidBinding() throws Exception
+	{
+		HttpServletRequest request = getRequest("unexistingProperty");
+		controller.bindAndValidate(target, request);
+
+		// Validation should not be executed,
+		// only the binding error should be present
+		assertTrue(controller.errors.hasErrors());
+		assertEquals(controller.errors.errorCount(), 1);
+	}
+
+	@Test
+	public void testBindAndValidateInvalidValidation() throws Exception
+	{
+		HttpServletRequest request = getRequest("stringProperty");
+		controller.bindAndValidate(target, request);
+
+		// Binding should succeed and validation fail
+		assertTrue(controller.errors.hasErrors());
+		assertEquals(controller.errors.errorCount(), 2);
+	}
+
+	@Test
+	public void testBindAndValidate() throws Exception
+	{
+		// Set required fields except one. Binding will set it
+		target.setRequiredFields();
+		target.getNestedProperty().setStringProperty(null);
+
+		// Bind the remaining required property
+		HttpServletRequest request = getRequest("nestedProperty.stringProperty");
+
+		controller.bindAndValidate(target, request);
+
+		// Binding should succeed and validation fail
+		assertFalse(controller.errors.hasErrors());
+	}
 }
