@@ -32,6 +32,7 @@ import java.util.Map;
 
 import javax.servlet.ServletRequest;
 
+import org.sjmvc.TestPojo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -54,12 +55,12 @@ public class RequestParameterBinderTest
 	private RequestParameterBinderTestSupport binder;
 
 	/** The target of the binding. */
-	private BindPojo target;
+	private TestPojo target;
 
 	@BeforeMethod
 	public void setUp() throws Exception
 	{
-		target = new BindPojo();
+		target = new TestPojo();
 	}
 
 	@Test

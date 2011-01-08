@@ -24,6 +24,8 @@ package org.sjmvc.binding;
 
 import static org.testng.Assert.assertEquals;
 
+import org.sjmvc.NestedTestPojo;
+import org.sjmvc.TestPojo;
 import org.sjmvc.util.ReflectionUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -33,13 +35,13 @@ import org.testng.annotations.Test;
  * 
  * @author Ignasi Barrera
  */
-public class AbstractBinderTest extends BindingTestSupport<BindPojo>
+public class AbstractBinderTest extends BindingTestSupport<TestPojo>
 {
 	@BeforeMethod
 	public void setUp()
 	{
-		target = new BindPojo();
-		binder = new AbstractBinder<BindPojo, Object>(target, null) {
+		target = new TestPojo();
+		binder = new AbstractBinder<TestPojo, Object>(target, null) {
 			@Override
 			protected void doBind()
 			{
@@ -196,7 +198,7 @@ public class AbstractBinderTest extends BindingTestSupport<BindPojo>
 	private void checkNestedField(String nestedPropertyName, String... values)
 			throws Exception
 	{
-		NestedPojo nested = target.getNestedProperty();
+		NestedTestPojo nested = target.getNestedProperty();
 
 		Object setValue = ReflectionUtils.getProperty(nested,
 				nestedPropertyName);

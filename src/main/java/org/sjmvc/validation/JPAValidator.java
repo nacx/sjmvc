@@ -20,38 +20,40 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.binding;
+package org.sjmvc.validation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
-import javax.servlet.ServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
 
-import org.sjmvc.TestPojo;
+import org.sjmvc.error.Errors;
 
 /**
- * Support class for the {@link RequestParameterBinder} unit tests.
+ * Validator implementation that validates objects based on the JPA annotations
+ * of the target object.
  * 
  * @author Ignasi Barrera
  * 
  */
-public class RequestParameterBinderTestSupport extends
-		RequestParameterBinder<TestPojo>
+public class JPAValidator implements Validator
 {
-	/** The list of bindable parameters. */
-	protected List<String> parameters;
-
-	public RequestParameterBinderTestSupport(TestPojo target,
-			ServletRequest source)
-	{
-		super(target, source);
-		parameters = new ArrayList<String>();
-	}
 
 	@Override
-	protected void bindField(Object currentObject, String name,
-			String... values)
+	public Errors validate(Object target)
 	{
-		parameters.add(name);
+		Errors errors = new Errors();
+
+		// Perform the JPA validation
+		Set<ConstraintViolation<Object>> validationErrors = Validation
+				.buildDefaultValidatorFactory().getValidator().validate(target);
+
+		// Get all error messages
+		for (ConstraintViolation<Object> error : validationErrors)
+		{
+			errors.add(error.getMessage());
+		}
+
+		return errors;
 	}
 }

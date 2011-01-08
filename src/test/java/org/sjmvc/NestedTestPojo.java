@@ -20,38 +20,49 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.binding;
+package org.sjmvc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
-import javax.servlet.ServletRequest;
-
-import org.sjmvc.TestPojo;
+import javax.validation.constraints.NotNull;
 
 /**
- * Support class for the {@link RequestParameterBinder} unit tests.
+ * Plain object used to perform binding tests.
  * 
  * @author Ignasi Barrera
- * 
  */
-public class RequestParameterBinderTestSupport extends
-		RequestParameterBinder<TestPojo>
+public class NestedTestPojo implements Serializable
 {
-	/** The list of bindable parameters. */
-	protected List<String> parameters;
+	/** Serial UID. */
+	private static final long serialVersionUID = 1L;
 
-	public RequestParameterBinderTestSupport(TestPojo target,
-			ServletRequest source)
+	/** A String property. */
+	@NotNull
+	private String stringProperty;
+
+	/** An Integer property. */
+	private Integer integerProperty;
+
+	// Getters and setters
+
+	public String getStringProperty()
 	{
-		super(target, source);
-		parameters = new ArrayList<String>();
+		return stringProperty;
 	}
 
-	@Override
-	protected void bindField(Object currentObject, String name,
-			String... values)
+	public void setStringProperty(String stringProperty)
 	{
-		parameters.add(name);
+		this.stringProperty = stringProperty;
 	}
+
+	public Integer getIntegerProperty()
+	{
+		return integerProperty;
+	}
+
+	public void setIntegerProperty(Integer integerProperty)
+	{
+		this.integerProperty = integerProperty;
+	}
+
 }

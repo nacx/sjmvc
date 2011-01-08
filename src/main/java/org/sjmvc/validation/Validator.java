@@ -20,38 +20,23 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.binding;
+package org.sjmvc.validation;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.ServletRequest;
-
-import org.sjmvc.TestPojo;
+import org.sjmvc.error.Errors;
 
 /**
- * Support class for the {@link RequestParameterBinder} unit tests.
+ * Validates the values of the properties of an object.
  * 
  * @author Ignasi Barrera
  * 
  */
-public class RequestParameterBinderTestSupport extends
-		RequestParameterBinder<TestPojo>
+public interface Validator
 {
-	/** The list of bindable parameters. */
-	protected List<String> parameters;
-
-	public RequestParameterBinderTestSupport(TestPojo target,
-			ServletRequest source)
-	{
-		super(target, source);
-		parameters = new ArrayList<String>();
-	}
-
-	@Override
-	protected void bindField(Object currentObject, String name,
-			String... values)
-	{
-		parameters.add(name);
-	}
+	/**
+	 * Validates the given object and returns all the validation errors.
+	 * 
+	 * @param target The object to validate.
+	 * @return The list of validation errors.
+	 */
+	public Errors validate(Object target);
 }

@@ -20,46 +20,65 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.binding;
+package org.sjmvc.validation;
 
-import java.io.Serializable;
+import static org.testng.Assert.assertEquals;
+
+import org.sjmvc.NestedTestPojo;
+import org.sjmvc.TestPojo;
+import org.sjmvc.error.Errors;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
- * Plain object used to perform binding tests.
+ * Unit tests for the {@link JPAValidator} class.
  * 
  * @author Ignasi Barrera
+ * 
  */
-public class NestedPojo implements Serializable
+public class JPAValidatorTest
 {
-	/** Serial UID. */
-	private static final long serialVersionUID = 1L;
+	/** The v alidator to test. */
+	private JPAValidator validator;
 
-	/** A String property. */
-	private String stringProperty;
+	/** The target object to validate. */
+	private TestPojo target;
 
-	/** An Integer property. */
-	private String integerProperty;
-
-	// Getters and setters
-
-	public String getStringProperty()
+	@BeforeMethod
+	public void setUp()
 	{
-		return stringProperty;
+		validator = new JPAValidator();
+		target = new TestPojo();
+		target.setNestedProperty(new NestedTestPojo());
+
+		// Build a valid pojo
+		target.setStringProperty("abc");
+		target.setIntegerProperty(2);
+		target.getNestedProperty().setStringProperty(new String());
 	}
 
-	public void setStringProperty(String stringProperty)
+	@Test
+	public void testValidationOK()
 	{
-		this.stringProperty = stringProperty;
+		checkValidation(0);
 	}
 
-	public String getIntegerProperty()
+	@Test
+	public void testValidationFailure()
 	{
-		return integerProperty;
+		target.setStringProperty("abcdef");
+		checkValidation(1);
+
+		target.setIntegerProperty(0);
+		checkValidation(2);
+
+		target.setNestedProperty(null);
+		checkValidation(3);
 	}
 
-	public void setIntegerProperty(String integerProperty)
+	private void checkValidation(int numberOfErrors)
 	{
-		this.integerProperty = integerProperty;
+		Errors errors = validator.validate(target);
+		assertEquals(errors.errorCount(), numberOfErrors);
 	}
-
 }
