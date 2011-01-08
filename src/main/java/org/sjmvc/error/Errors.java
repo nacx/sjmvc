@@ -63,6 +63,17 @@ public class Errors implements Serializable
 	}
 
 	/**
+	 * Add to the current <code>Errors</code> object the errors in the given
+	 * <code>Errors</code> object.
+	 * 
+	 * @param errors The errors to add.
+	 */
+	public void addAll(Errors errors)
+	{
+		this.errors.addAll(errors.getErrors());
+	}
+
+	/**
 	 * Checks if there are any errors.
 	 * 
 	 * @return Boolean indicating if there are any errors.
