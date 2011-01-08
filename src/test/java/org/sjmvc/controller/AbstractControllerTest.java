@@ -20,42 +20,26 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.validation;
+package org.sjmvc.controller;
 
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-
-import org.sjmvc.error.Error;
-import org.sjmvc.error.ErrorType;
-import org.sjmvc.error.Errors;
+import org.testng.annotations.BeforeMethod;
 
 /**
- * Validator implementation that validates objects based on the JPA annotations
- * of the target object.
+ * Unit tests for the {@link AbstractController} class.
  * 
  * @author Ignasi Barrera
  * 
  */
-public class JPAValidator implements Validator
+public class AbstractControllerTest
 {
+	/** The controller to test. */
+	private MockController controller;
 
-	@Override
-	public Errors validate(Object target)
+	@BeforeMethod
+	public void setUp()
 	{
-		Errors errors = new Errors();
-
-		// Perform the JPA validation
-		Set<ConstraintViolation<Object>> validationErrors = Validation
-				.buildDefaultValidatorFactory().getValidator().validate(target);
-
-		// Get all error messages
-		for (ConstraintViolation<Object> error : validationErrors)
-		{
-			errors.add(new Error(ErrorType.VALIDATION, error.getMessage()));
-		}
-
-		return errors;
+		controller = new MockController();
 	}
+
+	// TODO: test bindAndValidate method
 }

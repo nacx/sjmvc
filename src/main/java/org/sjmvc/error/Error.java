@@ -20,42 +20,74 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.validation;
+package org.sjmvc.error;
 
-import java.util.Set;
+import java.io.Serializable;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-
-import org.sjmvc.error.Error;
-import org.sjmvc.error.ErrorType;
-import org.sjmvc.error.Errors;
+import org.apache.commons.lang.StringUtils;
 
 /**
- * Validator implementation that validates objects based on the JPA annotations
- * of the target object.
+ * The generic error object.
  * 
  * @author Ignasi Barrera
  * 
  */
-public class JPAValidator implements Validator
+public class Error implements Serializable
 {
+	/** Serial UID. */
+	private static final long serialVersionUID = 1L;
+
+	/** The type of the error. */
+	private ErrorType type;
+
+	/** The error message. */
+	private String message;
+
+	/**
+	 * Creates a new error.
+	 * 
+	 * @param type The type of the error.
+	 * @param message The error details.
+	 */
+	public Error(ErrorType type, String message)
+	{
+		super();
+		this.type = type;
+		this.message = message;
+	}
 
 	@Override
-	public Errors validate(Object target)
+	public String toString()
 	{
-		Errors errors = new Errors();
+		StringBuilder sb = new StringBuilder();
 
-		// Perform the JPA validation
-		Set<ConstraintViolation<Object>> validationErrors = Validation
-				.buildDefaultValidatorFactory().getValidator().validate(target);
+		sb.append(StringUtils.capitalize(type.name().toLowerCase()));
+		sb.append(" error: ");
+		sb.append(message);
 
-		// Get all error messages
-		for (ConstraintViolation<Object> error : validationErrors)
-		{
-			errors.add(new Error(ErrorType.VALIDATION, error.getMessage()));
-		}
-
-		return errors;
+		return sb.toString();
 	}
+
+	// Getters and setters
+
+	public ErrorType getType()
+	{
+		return type;
+	}
+
+	public void setType(ErrorType type)
+	{
+		this.type = type;
+	}
+
+	public String getMessage()
+	{
+		return message;
+	}
+
+	public void setMessage(String message)
+	{
+		this.message = message;
+	}
+
 }

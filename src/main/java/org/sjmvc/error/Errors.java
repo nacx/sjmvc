@@ -39,27 +39,16 @@ public class Errors implements Serializable
 	private static final long serialVersionUID = 1L;
 
 	/** The list of errors. */
-	private List<Exception> errors = new LinkedList<Exception>();
+	private List<Error> errors = new LinkedList<Error>();
 
 	/**
 	 * Adds the given error to the {@link #errors} list.
 	 * 
 	 * @param error The error to add.
 	 */
-	public void add(final String error)
+	public void add(final Error error)
 	{
-		errors.add(new Exception(error));
-	}
-
-	/**
-	 * Adds the given error to the {@link #errors} list.
-	 * 
-	 * @param error The error to add.
-	 * @param cause The error cause.
-	 */
-	public void add(final String error, final Exception cause)
-	{
-		errors.add(new Exception(error, cause));
+		errors.add(error);
 	}
 
 	/**
@@ -103,7 +92,7 @@ public class Errors implements Serializable
 
 	// Getters and setters
 
-	public List<Exception> getErrors()
+	public List<Error> getErrors()
 	{
 		return errors;
 	}

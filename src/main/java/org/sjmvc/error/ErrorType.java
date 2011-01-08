@@ -20,42 +20,27 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.validation;
+package org.sjmvc.error;
 
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-
-import org.sjmvc.error.Error;
-import org.sjmvc.error.ErrorType;
-import org.sjmvc.error.Errors;
+import org.sjmvc.binding.Binder;
+import org.sjmvc.controller.Controller;
+import org.sjmvc.validation.Validator;
 
 /**
- * Validator implementation that validates objects based on the JPA annotations
- * of the target object.
+ * Type of the different errors generated in SJMVC.
  * 
  * @author Ignasi Barrera
  * 
  */
-public class JPAValidator implements Validator
+public enum ErrorType
 {
+	/** Error generated during {@link Binder} execution. */
+	BINDING,
 
-	@Override
-	public Errors validate(Object target)
-	{
-		Errors errors = new Errors();
+	/** Error generated during {@link Validator} execution. */
+	VALIDATION,
 
-		// Perform the JPA validation
-		Set<ConstraintViolation<Object>> validationErrors = Validation
-				.buildDefaultValidatorFactory().getValidator().validate(target);
+	/** An error generated during {@link Controller} execution. */
+	CONTROLLER;
 
-		// Get all error messages
-		for (ConstraintViolation<Object> error : validationErrors)
-		{
-			errors.add(new Error(ErrorType.VALIDATION, error.getMessage()));
-		}
-
-		return errors;
-	}
 }

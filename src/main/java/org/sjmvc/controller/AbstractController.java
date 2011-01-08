@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sjmvc.binding.BindingResult;
 import org.sjmvc.binding.RequestParameterBinder;
+import org.sjmvc.error.Error;
+import org.sjmvc.error.ErrorType;
 import org.sjmvc.error.Errors;
 import org.sjmvc.validation.JPAValidator;
 import org.sjmvc.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Base class for {@link Controller} implementations.
@@ -40,38 +40,30 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractController implements Controller
 {
-	/** The logger. */
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(AbstractController.class);
-
 	/** The attribute name where the model will be published. */
 	public static final String MODEL_ATTRIBUTE = "model";
 
 	/** The attribute name where the controller errors will be published. */
 	public static final String ERRORS_ATTRIBUTE = "errors";
 
+	/** List of errors produced during method execution. */
+	final Errors errors = new Errors();
+
 	/** The validator used to validate model objects. */
 	private Validator validator;
-
-	/** List of errors produced during method execution. */
-	private Errors errors = new Errors();
 
 	/** The view to return. */
 	private String returnView;
 
-	/** The class of the model object. */
-	private Class<?> modelClass;
-
-	/** The model objects used to render the view. */
-	// private Map<String, Object> model = new HashMap<String, Object>();
+	/** The model to render. */
+	private Object model;
 
 	/**
-	 * Creates a new <code>AbstractController</code>
+	 * Creates a new <code>AbstractController</code>.
 	 */
 	public AbstractController()
 	{
 		super();
-		errors = new Errors();
 		validator = new JPAValidator();
 	}
 
@@ -97,16 +89,10 @@ public abstract class AbstractController implements Controller
 	public String execute(final HttpServletRequest request,
 			final HttpServletResponse response) throws ControllerException
 	{
-		// Clear previous data and create a new model object
+		// Clear previous data
 		errors.clear();
 		returnView = null;
-		Object model = createModel();
-
-		// Bind and validate input data
-		if (model != null)
-		{
-			bindAndValidate(model, request);
-		}
+		model = null;
 
 		try
 		{
@@ -134,34 +120,59 @@ public abstract class AbstractController implements Controller
 		}
 
 		// Populate model and errors
-		if (modelClass != null)
+		if (model != null)
 		{
 			request.setAttribute(MODEL_ATTRIBUTE, model);
 		}
 
-		request.setAttribute(ERRORS_ATTRIBUTE, errors);
+		request.setAttribute(ERRORS_ATTRIBUTE, errors.getErrors());
 
 		return returnView;
 	}
 
 	/**
-	 * Binds the request parameters to the model object and validates it.
+	 * Binds the request parameters to the given model object and populates the
+	 * binding errors in the {@link #errors} property.
 	 * 
+	 * @param <T> The type of the model object to bind.
 	 * @param model The model object where to bind the request parameters.
 	 * @param request The request containing the input parameters.
 	 */
-	protected void bindAndValidate(Object model, HttpServletRequest request)
+	protected <T> void bind(T model, HttpServletRequest request)
 	{
-		// Bind request parameters to model object
-		RequestParameterBinder<Object> binder = new RequestParameterBinder<Object>(
-				model, request);
-		BindingResult<Object> bindingErrors = binder.bind();
+		RequestParameterBinder<T> binder = new RequestParameterBinder<T>(model,
+				request);
+		BindingResult<T> bindingErrors = binder.bind();
 		errors.addAll(bindingErrors.getErrors());
+	}
+
+	/**
+	 * Validate the given object model and populates the validation errors in
+	 * the {@link #errors} property.
+	 * 
+	 * @param <T> The type of the model object to validate.
+	 * @param model The object model to validate.
+	 */
+	protected <T> void validate(T model)
+	{
+		errors.addAll(validator.validate(model));
+	}
+
+	/**
+	 * Binds the request parameters to the model object and validates it.
+	 * 
+	 * @param <T> The type of the model object to bind and validate.
+	 * @param model The model object where to bind the request parameters.
+	 * @param request The request containing the input parameters.
+	 */
+	protected <T> void bindAndValidate(T model, HttpServletRequest request)
+	{
+		bind(model, request);
 
 		// Only validate if there are no binding errors
 		if (!errors())
 		{
-			errors.addAll(validator.validate(model));
+			validate(model);
 		}
 	}
 
@@ -172,18 +183,7 @@ public abstract class AbstractController implements Controller
 	 */
 	protected void error(final String error)
 	{
-		errors.add(error);
-	}
-
-	/**
-	 * Adds the given error to the {@link #errors} list.
-	 * 
-	 * @param error The error to add.
-	 * @param cause The error cause.
-	 */
-	protected void error(final String error, final Exception cause)
-	{
-		errors.add(error);
+		errors.add(new Error(ErrorType.CONTROLLER, error));
 	}
 
 	/**
@@ -196,65 +196,26 @@ public abstract class AbstractController implements Controller
 		return errors.hasErrors();
 	}
 
-	/**
-	 * Set the view to be returned.
-	 * 
-	 * @param viewName The name of the view to be returned.
-	 */
+	// Getters and setters
+
 	protected void setView(String viewName)
 	{
 		returnView = viewName;
 	}
 
-	/**
-	 * Get the view returned by the controller.
-	 * 
-	 * @return The name of the view returned by the controller.
-	 */
 	protected String getView()
 	{
 		return returnView;
 	}
 
-	/**
-	 * Sets the model class that will be used by the controller.
-	 * 
-	 * @param modelClass The class of the model object.
-	 */
-	protected void setModelClass(Class<?> modelClass)
+	public Object getModel()
 	{
-		this.modelClass = modelClass;
+		return model;
 	}
 
-	/**
-	 * Creates the model object defined in the {@link #modelClass} property.
-	 * 
-	 * @return The model object or <code>null</code> if the
-	 *         <code>modelClass</code> has not been defined.
-	 * @throws ControllerException If the model oject cannot be created.
-	 */
-	private Object createModel() throws ControllerException
+	public void setModel(Object model)
 	{
-		if (modelClass != null)
-		{
-			try
-			{
-				return modelClass.newInstance();
-			}
-			catch (Exception ex)
-			{
-				throw new ControllerException(
-						"Could not instantiate the model. "
-								+ "Does the model class have a default constructor?");
-			}
-		}
-		else
-		{
-			LOGGER.warn("The modelClass property has not been set. "
-					+ "Binding and validation will be disabled.");
-
-			return null;
-		}
+		this.model = model;
 	}
 
 }

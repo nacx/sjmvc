@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
+import org.sjmvc.error.Error;
+import org.sjmvc.error.ErrorType;
 import org.sjmvc.error.Errors;
 import org.sjmvc.util.ReflectionUtils;
 
@@ -129,7 +131,7 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 		}
 		catch (Exception ex)
 		{
-			errors.add(ex.getMessage(), ex);
+			errors.add(new Error(ErrorType.BINDING, ex.getMessage()));
 		}
 	}
 

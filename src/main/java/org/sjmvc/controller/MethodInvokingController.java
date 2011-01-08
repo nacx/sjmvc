@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * @author Ignasi Barrera
  * 
+ * @param <T> The type of the model object.
+ * 
  * @see Controller
  */
 public class MethodInvokingController extends AbstractController
