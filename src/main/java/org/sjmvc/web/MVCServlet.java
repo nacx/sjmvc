@@ -91,7 +91,7 @@ public class MVCServlet extends HttpServlet
 					resp);
 			dispatcher.dispatch(req, response);
 
-			// Only forward if no errors have been commited to the response
+			// Only forward if no errors have been committed to the response
 			if (response.isOk())
 			{
 				getServletContext().getRequestDispatcher(layout).forward(req,
