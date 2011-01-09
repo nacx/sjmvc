@@ -31,6 +31,15 @@ import org.sjmvc.controller.Controller;
  */
 public class Configuration
 {
+	/** The view path. */
+	public static final String VIEW_PATH = "/jsp";
+
+	/** The view suffix. */
+	public static final String VIEW_SUFFIX = ".jsp";
+
+	/** The layout path. */
+	public static final String LAYOUT_PATH = VIEW_PATH + "/layout";
+
 	/** The main configuration file. */
 	public static final String CONFIG_FILE = "sjmvc.properties";
 

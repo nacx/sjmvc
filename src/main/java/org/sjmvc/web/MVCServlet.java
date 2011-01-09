@@ -23,8 +23,6 @@
 package org.sjmvc.web;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -33,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sjmvc.config.Configuration;
+import org.sjmvc.config.ConfigurationException;
 import org.sjmvc.controller.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,8 @@ import org.slf4j.LoggerFactory;
  * @author Ignasi Barrera
  * 
  * @see Controller
+ * @see RequestDispatcher
+ * @see PathBasedRequestDispatcher
  */
 public class MVCServlet extends HttpServlet
 {
@@ -53,28 +54,11 @@ public class MVCServlet extends HttpServlet
 	/** Serial UID. */
 	private static final long serialVersionUID = 1L;
 
-	/** The view path. */
-	private static final String VIEW_PATH = "/jsp";
-
-	/** The view suffix. */
-	private static final String VIEW_SUFFIX = ".jsp";
-
-	/** The layout path. */
-	private static final String LAYOUT_PATH = VIEW_PATH + "/layout";
-
-	/** Mappings from request path to {@link Controller} class objects. */
-	protected Map<String, Class<Controller>> controllerClassess;
+	/** The request dispatcher used to dispatch requests to {@link Controller}. */
+	private RequestDispatcher dispatcher;
 
 	/** The main layout file to use in the application. */
 	protected String layout;
-
-	/**
-	 * Default constructor.
-	 */
-	public MVCServlet()
-	{
-		controllerClassess = new HashMap<String, Class<Controller>>();
-	}
 
 	/**
 	 * Initializes the servlet.
@@ -86,6 +70,7 @@ public class MVCServlet extends HttpServlet
 	{
 		try
 		{
+			dispatcher = new PathBasedRequestDispatcher();
 			readConfiguration();
 		}
 		catch (Exception ex)
@@ -93,7 +78,6 @@ public class MVCServlet extends HttpServlet
 			throw new ServletException("Could read MVC configuration: "
 					+ ex.getMessage(), ex);
 		}
-
 	}
 
 	@Override
@@ -101,54 +85,28 @@ public class MVCServlet extends HttpServlet
 			final HttpServletResponse resp) throws ServletException,
 			IOException
 	{
-		String controllerPath = null;
-		Class<Controller> controllerClass = null;
-		String requestedPath = getRequestedPath(req);
-
-		for (String path : controllerClassess.keySet())
+		try
 		{
-			if (requestedPath.startsWith(path))
+			StatusExposingResponseWrapper response = new StatusExposingResponseWrapper(
+					resp);
+			dispatcher.dispatch(req, response);
+
+			// Only forward if no errors have been commited to the response
+			if (response.isOk())
 			{
-				controllerPath = path;
-				controllerClass = controllerClassess.get(path);
-
-				LOGGER.debug("Using {} controller to handle request to: {}",
-						controllerClass.getName(), req.getRequestURI());
-			}
-		}
-
-		if (controllerClass != null)
-		{
-			try
-			{
-				// Instantiate the controller on each request to make it
-				// thread-safe
-				Controller controller = controllerClass.newInstance();
-				String viewName = controller.execute(req, resp);
-				String viewPath = VIEW_PATH + controllerPath + "/" + viewName
-						+ VIEW_SUFFIX;
-
-				req.setAttribute("currentView", viewPath);
 				getServletContext().getRequestDispatcher(layout).forward(req,
-						resp);
-			}
-			catch (Exception ex)
-			{
-				String errorMessage = "An error occured during request handling: "
-						+ ex.getMessage();
-
-				LOGGER.error(errorMessage, ex);
-
-				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-						errorMessage);
+						response);
 			}
 		}
-		else
+		catch (Exception ex)
 		{
-			resp.sendError(
-					HttpServletResponse.SC_NOT_FOUND,
-					"No controller was found to handle request to: "
-							+ req.getRequestURI());
+			String errorMessage = "An error occured during request handling: "
+					+ ex.getMessage();
+
+			LOGGER.error(errorMessage, ex);
+
+			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+					errorMessage);
 		}
 	}
 
@@ -161,66 +119,34 @@ public class MVCServlet extends HttpServlet
 	}
 
 	/**
-	 * Get the requested path relative to the servlet path.
-	 * 
-	 * @param req The request.
-	 * @return The requested path.
-	 */
-	private String getRequestedPath(final HttpServletRequest req)
-	{
-		return req.getRequestURI().replaceFirst(req.getContextPath(), "")
-				.replaceFirst(req.getServletPath(), "");
-	}
-
-	/**
 	 * Load configured controller mappings.
 	 * 
 	 * @throws Exception If mappings cannot be loaded.
 	 */
-	protected void readConfiguration() throws Exception
+	protected void readConfiguration() throws ConfigurationException
 	{
 		Properties config = new Properties();
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		config.load(cl.getResourceAsStream(Configuration.CONFIG_FILE));
 
-		LOGGER.info("Loading controller mappings...");
-
-		for (Object mappingKey : config.keySet())
+		try
 		{
-			String key = (String) mappingKey;
-
-			if (Configuration.isControllerProperty(key))
-			{
-				String path = config.getProperty(key);
-				String clazz = config.getProperty(key.replace(
-						Configuration.CONTROLLER_PATH_SUFFIX,
-						Configuration.CONTROLLER_CLASS_SUFFIX));
-
-				if (clazz == null)
-				{
-					throw new Exception("Missing controller class for path: "
-							+ path);
-				}
-
-				@SuppressWarnings("unchecked")
-				Class<Controller> controllerClass = (Class<Controller>) Class
-						.forName(clazz, true, cl);
-
-				controllerClassess.put(path, controllerClass);
-
-				LOGGER.info("Mapping {} to {}", path, controllerClass
-						.getClass().getName());
-			}
+			config.load(cl.getResourceAsStream(Configuration.CONFIG_FILE));
+		}
+		catch (Exception ex)
+		{
+			throw new ConfigurationException(
+					"Could not load configuration file: " + ex.getMessage());
 		}
 
 		layout = config.getProperty(Configuration.LAYOUT_PROPERTY);
 
 		if (layout == null)
 		{
-			throw new Exception("You must set the main layout file");
+			throw new ConfigurationException(
+					"You must set the main layout file");
 		}
 
-		layout = LAYOUT_PATH + "/" + layout;
+		layout = Configuration.LAYOUT_PATH + "/" + layout;
 
 		LOGGER.info("Using {} as the main layout", layout);
 	}
