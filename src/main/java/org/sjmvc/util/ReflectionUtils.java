@@ -88,7 +88,8 @@ public class ReflectionUtils
 	 * @return The converted value.
 	 * @throws Exception If the given value cannot be transformed.
 	 */
-	public static Object fromString(Class<?> clazz, String value)
+	@SuppressWarnings("unchecked")
+	public static <T> T fromString(Class<T> clazz, String value)
 			throws Exception
 	{
 		if (value == null)
@@ -97,35 +98,35 @@ public class ReflectionUtils
 		}
 		else if (clazz.equals(String.class))
 		{
-			return value;
+			return (T) value;
 		}
 		else if (clazz.equals(Integer.class))
 		{
-			return Integer.valueOf(value);
+			return (T) Integer.valueOf(value);
 		}
 		else if (clazz.equals(Double.class))
 		{
-			return Double.valueOf(value);
+			return (T) Double.valueOf(value);
 		}
 		else if (clazz.equals(Float.class))
 		{
-			return Float.valueOf(value);
+			return (T) Float.valueOf(value);
 		}
 		else if (clazz.equals(Boolean.class))
 		{
-			return Boolean.valueOf(value);
+			return (T) Boolean.valueOf(value);
 		}
 		else if (clazz.equals(Byte.class))
 		{
-			return Byte.valueOf(value);
+			return (T) Byte.valueOf(value);
 		}
 		else if (clazz.equals(Long.class))
 		{
-			return Long.valueOf(value);
+			return (T) Long.valueOf(value);
 		}
 		else if (clazz.equals(Short.class))
 		{
-			return Short.valueOf(value);
+			return (T) Short.valueOf(value);
 		}
 
 		throw new Exception("Could not transform [" + value
