@@ -28,6 +28,7 @@ import static org.sjmvc.util.ReflectionUtils.getFieldCollectionType;
 import static org.sjmvc.util.ReflectionUtils.getFieldType;
 import static org.sjmvc.util.ReflectionUtils.getProperty;
 import static org.sjmvc.util.ReflectionUtils.setValue;
+import static org.sjmvc.util.ReflectionUtils.transformAndSet;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -78,9 +79,11 @@ public class ReflectionUtilsTest
 	{
 		setValue(target, "stringProperty", "test");
 		setValue(target, "integerProperty", 5);
+		setValue(target, "integerArray", null);
 
 		assertEquals(target.getStringProperty(), "test");
 		assertEquals(target.getIntegerProperty(), new Integer(5));
+		assertEquals(target.getIntegerArray(), null);
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
@@ -110,6 +113,26 @@ public class ReflectionUtilsTest
 	{
 		checkInvalidFromString(TestPojo.class, "value");
 		checkInvalidFromString(Integer.class, "value");
+	}
+
+	@Test
+	public void testTransformAndSet() throws Exception
+	{
+		transformAndSet(target, "stringProperty", "test");
+		transformAndSet(target, "integerProperty", "5");
+		transformAndSet(target, "integerArray", null);
+
+		assertEquals(target.getStringProperty(), "test");
+		assertEquals(target.getIntegerProperty(), new Integer(5));
+		assertEquals(target.getIntegerArray(), null);
+	}
+
+	@Test
+	public void testInvalidTransformAndSet()
+	{
+		checkInvalidTransformAndSet(target, "unexistingProperty", "test");
+		checkInvalidTransformAndSet(target, "integerProperty", "test");
+		checkInvalidTransformAndSet(target, "nestedProperty", "test");
 	}
 
 	@Test
@@ -161,6 +184,20 @@ public class ReflectionUtilsTest
 		{
 			fromString(clazz, value);
 			fail("fromString method should have failed");
+		}
+		catch (Exception ex)
+		{
+			// Do nothing. Test success.
+		}
+	}
+
+	public void checkInvalidTransformAndSet(Object target, String name,
+			String value)
+	{
+		try
+		{
+			transformAndSet(target, name, value);
+			fail("transformAndSet method should have failed");
 		}
 		catch (Exception ex)
 		{
