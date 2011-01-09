@@ -48,7 +48,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 			.getLogger(PathBasedRequestDispatcher.class);
 
 	/** Mappings from request path to {@link Controller} class objects. */
-	protected Map<String, Class<Controller>> controllerClassess;
+	protected Map<String, Class<Controller>> controllerClasses;
 
 	/**
 	 * Creates the request dispatcher.
@@ -59,7 +59,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	public PathBasedRequestDispatcher() throws ConfigurationException
 	{
 		super();
-		controllerClassess = new HashMap<String, Class<Controller>>();
+		controllerClasses = new HashMap<String, Class<Controller>>();
 		readConfiguration();
 	}
 
@@ -67,16 +67,19 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	public void dispatch(HttpServletRequest req, HttpServletResponse resp)
 			throws Exception
 	{
+		LOGGER.debug("Looking up for a controller to handle request to: {}",
+				req.getRequestURI());
+
 		String controllerPath = null;
 		Class<Controller> controllerClass = null;
 		String requestedPath = getRequestedPath(req);
 
-		for (String path : controllerClassess.keySet())
+		for (String path : controllerClasses.keySet())
 		{
 			if (requestedPath.startsWith(path))
 			{
 				controllerPath = path;
-				controllerClass = controllerClassess.get(path);
+				controllerClass = controllerClasses.get(path);
 
 				LOGGER.debug("Using {} controller to handle request to: {}",
 						controllerClass.getName(), req.getRequestURI());
@@ -95,6 +98,9 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 		}
 		else
 		{
+			LOGGER.error("No controller was found to handle request to: {}",
+					req.getRequestURI());
+
 			resp.sendError(
 					HttpServletResponse.SC_NOT_FOUND,
 					"No controller was found to handle request to: "
@@ -121,18 +127,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	 */
 	protected void readConfiguration() throws ConfigurationException
 	{
-		Properties config = new Properties();
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-
-		try
-		{
-			config.load(cl.getResourceAsStream(Configuration.CONFIG_FILE));
-		}
-		catch (Exception ex)
-		{
-			throw new ConfigurationException(
-					"Could not load configuration file: " + ex.getMessage());
-		}
+		Properties config = Configuration.getConfiguration();
 
 		LOGGER.info("Loading controller mappings...");
 
@@ -155,11 +150,14 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 				try
 				{
+					ClassLoader cl = Thread.currentThread()
+							.getContextClassLoader();
+
 					@SuppressWarnings("unchecked")
 					Class<Controller> controllerClass = (Class<Controller>) Class
 							.forName(clazz, true, cl);
 
-					controllerClassess.put(path, controllerClass);
+					controllerClasses.put(path, controllerClass);
 
 					LOGGER.info("Mapping {} to {}", path, controllerClass
 							.getClass().getName());

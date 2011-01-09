@@ -24,8 +24,14 @@ package org.sjmvc.config;
 
 import static org.sjmvc.config.Configuration.CONTROLLER_PATH_SUFFIX;
 import static org.sjmvc.config.Configuration.CONTROLLER_PREFIX;
+import static org.sjmvc.config.Configuration.getConfigValue;
+import static org.sjmvc.config.Configuration.getConfiguration;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+
+import java.util.Properties;
 
 import org.testng.annotations.Test;
 
@@ -37,22 +43,47 @@ import org.testng.annotations.Test;
 public class ConfigurationTest
 {
 
-    @Test
-    public void testIsConfigProperty()
-    {
-        assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + CONTROLLER_PATH_SUFFIX));
-        assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + " "
-            + CONTROLLER_PATH_SUFFIX));
-        assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + "test"
-            + CONTROLLER_PATH_SUFFIX));
-        assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + "."
-            + CONTROLLER_PATH_SUFFIX));
+	@Test
+	public void testIsConfigProperty()
+	{
+		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX
+				+ CONTROLLER_PATH_SUFFIX));
+		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + " "
+				+ CONTROLLER_PATH_SUFFIX));
+		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX
+				+ "test" + CONTROLLER_PATH_SUFFIX));
+		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + "."
+				+ CONTROLLER_PATH_SUFFIX));
 
-        assertFalse(Configuration.isControllerProperty(""));
-        assertFalse(Configuration.isControllerProperty("test"));
-        assertFalse(Configuration.isControllerProperty(CONTROLLER_PREFIX));
-        assertFalse(Configuration.isControllerProperty(CONTROLLER_PATH_SUFFIX));
-        assertFalse(Configuration.isControllerProperty(CONTROLLER_PREFIX + "test"));
-        assertFalse(Configuration.isControllerProperty("test" + CONTROLLER_PATH_SUFFIX));
-    }
+		assertFalse(Configuration.isControllerProperty(""));
+		assertFalse(Configuration.isControllerProperty("test"));
+		assertFalse(Configuration.isControllerProperty(CONTROLLER_PREFIX));
+		assertFalse(Configuration.isControllerProperty(CONTROLLER_PATH_SUFFIX));
+		assertFalse(Configuration.isControllerProperty(CONTROLLER_PREFIX
+				+ "test"));
+		assertFalse(Configuration.isControllerProperty("test"
+				+ CONTROLLER_PATH_SUFFIX));
+	}
+
+	@Test
+	public void testGetConfiguration()
+	{
+		Properties props = getConfiguration();
+
+		assertNotNull(props);
+		assertEquals(props.size(), 3);
+	}
+
+	@Test
+	public void testGetConfigValue()
+	{
+		// Existing properties
+		assertEquals(getConfigValue("sjmvc.layout.main"), "layout.jsp");
+		assertEquals(getConfigValue("sjmvc.controller.mock.path"), "/mock");
+		assertEquals(getConfigValue("sjmvc.controller.mock.class"),
+				"org.sjmvc.controller.MockController");
+
+		// Unexisting properties
+		assertEquals(getConfigValue("sjmvc.unexisting"), null);
+	}
 }

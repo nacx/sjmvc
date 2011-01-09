@@ -25,6 +25,7 @@ package org.sjmvc.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sjmvc.binding.Binder;
 import org.sjmvc.binding.BindingResult;
 import org.sjmvc.binding.RequestParameterBinder;
 import org.sjmvc.error.Error;
@@ -32,14 +33,23 @@ import org.sjmvc.error.ErrorType;
 import org.sjmvc.error.Errors;
 import org.sjmvc.validation.JPAValidator;
 import org.sjmvc.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for {@link Controller} implementations.
  * 
  * @author Ignasi Barrera
+ * 
+ * @see Binder
+ * @see Validator
  */
 public abstract class AbstractController implements Controller
 {
+	/** The logger. */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(AbstractController.class);
+
 	/** The attribute name where the model will be published. */
 	public static final String MODEL_ATTRIBUTE = "model";
 
@@ -89,6 +99,8 @@ public abstract class AbstractController implements Controller
 	public String execute(final HttpServletRequest request,
 			final HttpServletResponse response) throws ControllerException
 	{
+		LOGGER.debug("Executing controller: {}", this.getClass().getName());
+
 		// Clear previous data
 		errors.clear();
 		returnView = null;
@@ -200,6 +212,8 @@ public abstract class AbstractController implements Controller
 
 	protected void setView(String viewName)
 	{
+		LOGGER.debug("Setting view to: {}", viewName);
+
 		returnView = viewName;
 	}
 

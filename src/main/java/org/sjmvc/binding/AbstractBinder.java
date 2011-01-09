@@ -33,6 +33,8 @@ import org.sjmvc.error.Error;
 import org.sjmvc.error.ErrorType;
 import org.sjmvc.error.Errors;
 import org.sjmvc.util.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for {@link Binder} implementations.
@@ -41,9 +43,14 @@ import org.sjmvc.util.ReflectionUtils;
  * 
  * @see BindingResult
  * @see BindingError
+ * @see RequestParameterBinder
  */
 public abstract class AbstractBinder<T, S> implements Binder<T, S>
 {
+	/** The logger. */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(AbstractBinder.class);
+
 	/** The object target of the binding. */
 	protected T target;
 
@@ -104,11 +111,17 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 		{
 			if (path.length == 1)
 			{
+				LOGGER.trace("Binding simple property {} to {}", name,
+						currentObject.getClass().getName());
+
 				// Bind simple property
 				setValue(currentObject, path[0], values);
 			}
 			else
 			{
+				LOGGER.trace("Binding nested property {} to {}", name,
+						currentObject.getClass().getName());
+
 				// Recursively bind the nested values
 				String remainingPath = StringUtils.join(path, "", 1,
 						path.length);
@@ -118,6 +131,9 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 				// If nested object is null, create it
 				if (nestedObject == null)
 				{
+					LOGGER.trace("Nested property {} is null. Creating it.",
+							name);
+
 					Class<?> nestedType = ReflectionUtils.getFieldType(path[0],
 							currentObject.getClass());
 					nestedObject = nestedType.newInstance();
@@ -131,6 +147,9 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 		}
 		catch (Exception ex)
 		{
+			LOGGER.debug("Could not bind property {} to {}", name,
+					currentObject.getClass().getName());
+
 			errors.add(new Error(ErrorType.BINDING, ex.getMessage()));
 		}
 	}
@@ -168,6 +187,11 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 					setSimpleValue(field, currentObject, name, values[0]);
 				}
 			}
+			else
+			{
+				LOGGER.debug("Property {} is static or transient "
+						+ "and binding will ignore it", name);
+			}
 		}
 		catch (Exception ex)
 		{
@@ -188,6 +212,8 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 	protected void setSimpleValue(Field field, Object currentObject,
 			String name, String value) throws Exception
 	{
+		LOGGER.trace("Setting {} to {}", value, name);
+
 		// Value should be a single element array
 		ReflectionUtils.transformAndSet(currentObject, name, value);
 	}
@@ -204,6 +230,9 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 	protected void setCollectionValues(Field field, Object currentObject,
 			String name, String values[]) throws Exception
 	{
+		LOGGER.trace("Setting [{}] to {} collection",
+				StringUtils.join(values, ", "), name);
+
 		// Get the type of the elements in the collection
 		Class<?> elementsType = ReflectionUtils.getFieldCollectionType(name,
 				currentObject.getClass());
@@ -215,6 +244,8 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 
 		if (col == null)
 		{
+			LOGGER.trace("Collection property {} is null. Creating it", name);
+
 			col = new ArrayList<Object>();
 		}
 
@@ -242,6 +273,9 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 	protected void setArrayValues(Field field, Object currentObject,
 			String name, String values[]) throws Exception
 	{
+		LOGGER.trace("Setting [{}] to {} array",
+				StringUtils.join(values, ", "), name);
+
 		Class<?> elementsType = field.getType().getComponentType();
 		Object array = Array.newInstance(elementsType, values.length);
 

@@ -30,6 +30,8 @@ import javax.validation.Validation;
 import org.sjmvc.error.Error;
 import org.sjmvc.error.ErrorType;
 import org.sjmvc.error.Errors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validator implementation that validates objects based on the JPA annotations
@@ -40,10 +42,15 @@ import org.sjmvc.error.Errors;
  */
 public class JPAValidator implements Validator
 {
+	/** The logger. */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(JPAValidator.class);
 
 	@Override
 	public Errors validate(Object target)
 	{
+		LOGGER.trace("Validating object: {}", target.getClass().getName());
+
 		Errors errors = new Errors();
 
 		// Perform the JPA validation
@@ -54,6 +61,15 @@ public class JPAValidator implements Validator
 		for (ConstraintViolation<Object> error : validationErrors)
 		{
 			errors.add(new Error(ErrorType.VALIDATION, error.getMessage()));
+		}
+
+		if (errors.hasErrors())
+		{
+			LOGGER.trace("Found {} validation errors", errors.errorCount());
+		}
+		else
+		{
+			LOGGER.trace("Validation succeeded");
 		}
 
 		return errors;

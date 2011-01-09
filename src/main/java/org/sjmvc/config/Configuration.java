@@ -22,7 +22,11 @@
 
 package org.sjmvc.config;
 
+import java.util.Properties;
+
 import org.sjmvc.controller.Controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Global application configuration.
@@ -31,6 +35,12 @@ import org.sjmvc.controller.Controller;
  */
 public class Configuration
 {
+	/** The logger. */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(Configuration.class);
+
+	// View configuration
+
 	/** The view path. */
 	public static final String VIEW_PATH = "/jsp";
 
@@ -40,8 +50,10 @@ public class Configuration
 	/** The layout path. */
 	public static final String LAYOUT_PATH = VIEW_PATH + "/layout";
 
-	/** The main configuration file. */
-	public static final String CONFIG_FILE = "sjmvc.properties";
+	/** Name of the property that holds the main layout file. */
+	public static final String LAYOUT_PROPERTY = "sjmvc.layout.main";
+
+	// Controller configuration
 
 	/** The prefix for controller mapping properties. */
 	public static final String CONTROLLER_PREFIX = "sjmvc.controller.";
@@ -52,8 +64,69 @@ public class Configuration
 	/** The suffix for controller class mapping properties. */
 	public static final String CONTROLLER_CLASS_SUFFIX = ".class";
 
-	/** Name of the property that holds the main layout file. */
-	public static final String LAYOUT_PROPERTY = "sjmvc.layout.main";
+	// Main configuration
+
+	/** The main configuration file. */
+	private static final String CONFIG_FILE = "sjmvc.properties";
+
+	/** The singleton instance of the configuration object. */
+	private static Configuration instance;
+
+	/** The configuration properties. */
+	private Properties properties;
+
+	/**
+	 * Private constructor. This class should ot be instantiated.
+	 */
+	private Configuration()
+	{
+		super();
+	}
+
+	/**
+	 * Gets the configuration properties.
+	 * 
+	 * @return The configuration properties.
+	 */
+	public static Properties getConfiguration()
+	{
+		if (instance == null)
+		{
+			instance = new Configuration();
+
+			LOGGER.debug("Loading configuration from {}", CONFIG_FILE);
+
+			// Load properties
+			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			instance.properties = new Properties();
+
+			try
+			{
+				instance.properties.load(cl.getResourceAsStream(CONFIG_FILE));
+			}
+			catch (Exception ex)
+			{
+				throw new ConfigurationException(
+						"Could not load configuration file: " + ex.getMessage());
+			}
+
+			LOGGER.debug("Loaded {} configuration properties",
+					instance.properties.size());
+		}
+
+		return instance.properties;
+	}
+
+	/**
+	 * Get the configuration value for the given property name.
+	 * 
+	 * @return The value for the given property or <code>null</code> if the
+	 *         value is not defined.
+	 */
+	public static String getConfigValue(String propertyName)
+	{
+		return getConfiguration().getProperty(propertyName);
+	}
 
 	/**
 	 * Checks if the given property defines a {@link Controller} mapping.
@@ -67,4 +140,5 @@ public class Configuration
 		return property.startsWith(CONTROLLER_PREFIX)
 				&& property.endsWith(CONTROLLER_PATH_SUFFIX);
 	}
+
 }

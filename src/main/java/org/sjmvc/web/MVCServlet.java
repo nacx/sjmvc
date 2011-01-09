@@ -23,7 +23,6 @@
 package org.sjmvc.web;
 
 import java.io.IOException;
-import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -75,7 +74,7 @@ public class MVCServlet extends HttpServlet
 		}
 		catch (Exception ex)
 		{
-			throw new ServletException("Could read MVC configuration: "
+			throw new ServletException("Could not read MVC configuration: "
 					+ ex.getMessage(), ex);
 		}
 	}
@@ -125,25 +124,11 @@ public class MVCServlet extends HttpServlet
 	 */
 	protected void readConfiguration() throws ConfigurationException
 	{
-		Properties config = new Properties();
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-
-		try
-		{
-			config.load(cl.getResourceAsStream(Configuration.CONFIG_FILE));
-		}
-		catch (Exception ex)
-		{
-			throw new ConfigurationException(
-					"Could not load configuration file: " + ex.getMessage());
-		}
-
-		layout = config.getProperty(Configuration.LAYOUT_PROPERTY);
+		layout = Configuration.getConfigValue(Configuration.LAYOUT_PROPERTY);
 
 		if (layout == null)
 		{
-			throw new ConfigurationException(
-					"You must set the main layout file");
+			throw new ConfigurationException("Layout file must be set");
 		}
 
 		layout = Configuration.LAYOUT_PATH + "/" + layout;
