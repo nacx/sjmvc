@@ -63,7 +63,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
     @Override
     public void dispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception
     {
-        LOGGER.debug("Looking up for a controller to handle request to: {}", req.getRequestURI());
+        LOGGER.debug("Looking for a controller to handle request to: {}", req.getRequestURI());
 
         String controllerPath = null;
         Class<Controller> controllerClass = null;
