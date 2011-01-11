@@ -40,11 +40,11 @@ import org.slf4j.LoggerFactory;
  * @author Ignasi Barrera
  * 
  */
-public class JPAValidator implements Validator
+public class BeanValidator implements Validator
 {
 	/** The logger. */
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(JPAValidator.class);
+			.getLogger(BeanValidator.class);
 
 	@Override
 	public Errors validate(Object target)

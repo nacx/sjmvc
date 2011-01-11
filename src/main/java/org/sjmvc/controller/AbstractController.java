@@ -31,7 +31,7 @@ import org.sjmvc.binding.RequestParameterBinder;
 import org.sjmvc.error.Error;
 import org.sjmvc.error.ErrorType;
 import org.sjmvc.error.Errors;
-import org.sjmvc.validation.JPAValidator;
+import org.sjmvc.validation.BeanValidator;
 import org.sjmvc.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,196 +40,224 @@ import org.slf4j.LoggerFactory;
  * Base class for {@link Controller} implementations.
  * 
  * @author Ignasi Barrera
- * 
  * @see Binder
  * @see Validator
  */
 public abstract class AbstractController implements Controller
 {
-	/** The logger. */
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(AbstractController.class);
+    /** The logger. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractController.class);
 
-	/** The attribute name where the model will be published. */
-	public static final String MODEL_ATTRIBUTE = "model";
+    /** The attribute name where the model will be published. */
+    public static final String MODEL_ATTRIBUTE = "model";
 
-	/** The attribute name where the controller errors will be published. */
-	public static final String ERRORS_ATTRIBUTE = "errors";
+    /** The attribute name where the controller errors will be published. */
+    public static final String ERRORS_ATTRIBUTE = "errors";
 
-	/** List of errors produced during method execution. */
-	final Errors errors = new Errors();
+    /** List of errors produced during method execution. */
+    final Errors errors = new Errors();
 
-	/** The validator used to validate model objects. */
-	private Validator validator;
+    /** The validator used to validate model objects. */
+    private Validator validator;
 
-	/** The view to return. */
-	private String returnView;
+    /** The view to return. */
+    private String returnView;
 
-	/** The model to render. */
-	private Object model;
+    /** The model to render. */
+    private Object model;
 
-	/**
-	 * Creates a new <code>AbstractController</code>.
-	 */
-	public AbstractController()
-	{
-		super();
-		validator = new JPAValidator();
-	}
+    /**
+     * Creates a new <code>AbstractController</code> with default values.
+     */
+    public AbstractController()
+    {
+        super();
+        validator = new BeanValidator();
 
-	/**
-	 * Internal method to implement the controller logic.
-	 * <p>
-	 * This method returns void and expects this method to set the view to
-	 * render by calling the {@link #setView(String)} method.
-	 * <p>
-	 * The model must be also populated using the
-	 * {@link #addModel(String, Object)} method in order to let the views render
-	 * properly.
-	 * 
-	 * @param request The request.
-	 * @param response The response.
-	 * @throws Exception If an exception occurs during controller logic
-	 *             execution.
-	 */
-	protected abstract void doExecute(final HttpServletRequest request,
-			final HttpServletResponse response) throws Exception;
+        // Allow Controllers execute custom initialization logic
+        init();
+    }
 
-	@Override
-	public String execute(final HttpServletRequest request,
-			final HttpServletResponse response) throws ControllerException
-	{
-		LOGGER.debug("Executing controller: {}", this.getClass().getName());
+    @Override
+    public String execute(final HttpServletRequest request, final HttpServletResponse response)
+        throws ControllerException
+    {
+        LOGGER.debug("Executing controller: {}", this.getClass().getName());
 
-		// Clear previous data
-		errors.clear();
-		returnView = null;
-		model = null;
+        // Clean up existing data
+        cleanUp();
 
-		try
-		{
-			// Execute controller logic
-			doExecute(request, response);
+        try
+        {
+            // Execute controller logic
+            doExecute(request, response);
 
-			if (returnView == null)
-			{
-				throw new Exception("There was no view set. "
-						+ "Use the setView method to set the view to render");
-			}
-		}
-		catch (Exception ex)
-		{
-			if (ex.getCause() instanceof ControllerException)
-			{
-				// If it is a Controller exception, just propagate it
-				throw (ControllerException) ex.getCause();
-			}
+            if (returnView == null)
+            {
+                throw new Exception("There was no view set. "
+                    + "Use the setView method to set the view to render");
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex.getCause() instanceof ControllerException)
+            {
+                // If it is a Controller exception, just propagate it
+                throw (ControllerException) ex.getCause();
+            }
 
-			throw new ControllerException(
-					"Could not execute the Controller logic at "
-							+ this.getClass().getName(),
-					ex.getCause() == null ? ex : ex.getCause());
-		}
+            throw new ControllerException("Could not execute the Controller logic at "
+                + this.getClass().getName(), ex.getCause() == null ? ex : ex.getCause());
+        }
 
-		// Populate model and errors
-		if (model != null)
-		{
-			request.setAttribute(MODEL_ATTRIBUTE, model);
-		}
+        // Populate model and errors
+        if (model != null)
+        {
+            request.setAttribute(MODEL_ATTRIBUTE, model);
+        }
 
-		request.setAttribute(ERRORS_ATTRIBUTE, errors.getErrors());
+        request.setAttribute(ERRORS_ATTRIBUTE, errors.getErrors());
 
-		return returnView;
-	}
+        return returnView;
+    }
 
-	/**
-	 * Binds the request parameters to the given model object and populates the
-	 * binding errors in the {@link #errors} property.
-	 * 
-	 * @param <T> The type of the model object to bind.
-	 * @param model The model object where to bind the request parameters.
-	 * @param request The request containing the input parameters.
-	 */
-	protected <T> void bind(T model, HttpServletRequest request)
-	{
-		RequestParameterBinder<T> binder = new RequestParameterBinder<T>(model,
-				request);
-		BindingResult<T> bindingErrors = binder.bind();
-		errors.addAll(bindingErrors.getErrors());
-	}
+    /**
+     * Perform controller initialization tasks.
+     * <p>
+     * Controllers may override this method to perform custom initialization, such as setting a
+     * custom {@link Validator} implementation.
+     */
+    protected void init()
+    {
 
-	/**
-	 * Validate the given object model and populates the validation errors in
-	 * the {@link #errors} property.
-	 * 
-	 * @param <T> The type of the model object to validate.
-	 * @param model The object model to validate.
-	 */
-	protected <T> void validate(T model)
-	{
-		errors.addAll(validator.validate(model));
-	}
+    }
 
-	/**
-	 * Binds the request parameters to the model object and validates it.
-	 * 
-	 * @param <T> The type of the model object to bind and validate.
-	 * @param model The model object where to bind the request parameters.
-	 * @param request The request containing the input parameters.
-	 */
-	protected <T> void bindAndValidate(T model, HttpServletRequest request)
-	{
-		bind(model, request);
+    /**
+     * Internal method to implement the controller logic.
+     * <p>
+     * This method returns void and expects this method to set the view to render by calling the
+     * {@link #setView(String)} method.
+     * <p>
+     * The model must be also populated using the {@link #addModel(String, Object)} method in order
+     * to let the views render properly.
+     * 
+     * @param request The request.
+     * @param response The response.
+     * @throws Exception If an exception occurs during controller logic execution.
+     */
+    protected abstract void doExecute(final HttpServletRequest request,
+        final HttpServletResponse response) throws Exception;
 
-		// Only validate if there are no binding errors
-		if (!errors())
-		{
-			validate(model);
-		}
-	}
+    /**
+     * Binds the request parameters to the given model object and populates the binding errors in
+     * the {@link #errors} property.
+     * 
+     * @param <T> The type of the model object to bind.
+     * @param model The model object where to bind the request parameters.
+     * @param request The request containing the input parameters.
+     */
+    protected <T> void bind(T model, HttpServletRequest request)
+    {
+        RequestParameterBinder<T> binder = new RequestParameterBinder<T>(model, request);
+        BindingResult<T> bindingErrors = binder.bind();
+        errors.addAll(bindingErrors.getErrors());
+    }
 
-	/**
-	 * Adds the given error to the {@link #errors} list.
-	 * 
-	 * @param error The error to add.
-	 */
-	protected void error(final String error)
-	{
-		errors.add(new Error(ErrorType.CONTROLLER, error));
-	}
+    /**
+     * Validate the given object model and populates the validation errors in the {@link #errors}
+     * property.
+     * 
+     * @param <T> The type of the model object to validate.
+     * @param model The object model to validate.
+     */
+    protected <T> void validate(T model)
+    {
+        errors.addAll(validator.validate(model));
+    }
 
-	/**
-	 * Checks if there are any errors.
-	 * 
-	 * @return Boolean indicating if there are any errors.
-	 */
-	protected boolean errors()
-	{
-		return errors.hasErrors();
-	}
+    /**
+     * Binds the request parameters to the model object and validates it.
+     * 
+     * @param <T> The type of the model object to bind and validate.
+     * @param model The model object where to bind the request parameters.
+     * @param request The request containing the input parameters.
+     */
+    protected <T> void bindAndValidate(T model, HttpServletRequest request)
+    {
+        bind(model, request);
 
-	// Getters and setters
+        // Only validate if there are no binding errors
+        if (!errors())
+        {
+            validate(model);
+        }
+    }
 
-	protected void setView(String viewName)
-	{
-		LOGGER.debug("Setting view to: {}", viewName);
+    /**
+     * Adds the given error to the {@link #errors} list.
+     * 
+     * @param error The error to add.
+     */
+    protected void error(final String error)
+    {
+        errors.add(new Error(ErrorType.CONTROLLER, error));
+    }
 
-		returnView = viewName;
-	}
+    /**
+     * Checks if there are any errors.
+     * 
+     * @return Boolean indicating if there are any errors.
+     */
+    protected boolean errors()
+    {
+        return errors.hasErrors();
+    }
 
-	protected String getView()
-	{
-		return returnView;
-	}
+    /**
+     * Cleanup previous execution data.
+     * <p>
+     * This method should only be necessary when using singleton controllers.
+     */
+    private void cleanUp()
+    {
+        // Clear previous data
+        errors.clear();
+        returnView = null;
+        model = null;
+    }
 
-	public Object getModel()
-	{
-		return model;
-	}
+    // Getters and setters
 
-	public void setModel(Object model)
-	{
-		this.model = model;
-	}
+    protected void setView(String viewName)
+    {
+        LOGGER.debug("Setting view to: {}", viewName);
+
+        returnView = viewName;
+    }
+
+    protected String getView()
+    {
+        return returnView;
+    }
+
+    public Object getModel()
+    {
+        return model;
+    }
+
+    public void setModel(Object model)
+    {
+        this.model = model;
+    }
+
+    public Validator getValidator()
+    {
+        return validator;
+    }
+
+    public void setValidator(Validator validator)
+    {
+        this.validator = validator;
+    }
 
 }

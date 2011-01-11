@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Unit tests for the {@link JPAValidator} class.
+ * Unit tests for the {@link BeanValidator} class.
  * 
  * @author Ignasi Barrera
  * 
@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
 public class JPAValidatorTest
 {
 	/** The v alidator to test. */
-	private JPAValidator validator;
+	private BeanValidator validator;
 
 	/** The target object to validate. */
 	private TestPojo target;
@@ -46,7 +46,7 @@ public class JPAValidatorTest
 	@BeforeMethod
 	public void setUp()
 	{
-		validator = new JPAValidator();
+		validator = new BeanValidator();
 		target = new TestPojo();
 		target.setRequiredFields();
 	}
