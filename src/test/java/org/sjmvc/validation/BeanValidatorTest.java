@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
  * @author Ignasi Barrera
  * 
  */
-public class JPAValidatorTest
+public class BeanValidatorTest
 {
 	/** The v alidator to test. */
 	private BeanValidator validator;
