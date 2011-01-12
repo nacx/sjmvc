@@ -1,0 +1,18 @@
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+	
+	<!-- Tag library information -->
+	<uri>http://sjmvc.org/taglib/sjmvc</uri>
+	<description>Utility tags for the SJMVC pages</description>
+	<tlib-version>${project.version}</tlib-version>
+
+    <!-- Errors tag -->
+	<tag>
+		<name>errors</name>
+		<description>Print the controlled errors occurred during Controller execution</description>
+		<tag-class>org.sjmvc.web.taglib.ErrorsTag</tag-class>
+		<body-content>empty</body-content>
+	</tag>
+
+</taglib>

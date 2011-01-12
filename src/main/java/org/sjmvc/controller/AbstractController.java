@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sjmvc.binding.Binder;
 import org.sjmvc.binding.BindingResult;
 import org.sjmvc.binding.RequestParameterBinder;
+import org.sjmvc.config.Configuration;
 import org.sjmvc.error.Error;
 import org.sjmvc.error.ErrorType;
 import org.sjmvc.error.Errors;
@@ -47,12 +48,6 @@ public abstract class AbstractController implements Controller
 {
     /** The logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractController.class);
-
-    /** The attribute name where the model will be published. */
-    public static final String MODEL_ATTRIBUTE = "model";
-
-    /** The attribute name where the controller errors will be published. */
-    public static final String ERRORS_ATTRIBUTE = "errors";
 
     /** List of errors produced during method execution. */
     final Errors errors = new Errors();
@@ -113,10 +108,10 @@ public abstract class AbstractController implements Controller
         // Populate model and errors
         if (model != null)
         {
-            request.setAttribute(MODEL_ATTRIBUTE, model);
+            request.setAttribute(Configuration.MODEL_ATTRIBUTE, model);
         }
 
-        request.setAttribute(ERRORS_ATTRIBUTE, errors.getErrors());
+        request.setAttribute(Configuration.ERRORS_ATTRIBUTE, errors.getErrors());
 
         return returnView;
     }

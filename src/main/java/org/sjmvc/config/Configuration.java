@@ -35,110 +35,111 @@ import org.slf4j.LoggerFactory;
  */
 public class Configuration
 {
-	/** The logger. */
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(Configuration.class);
+    /** The logger. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
-	// View configuration
+    // View configuration
 
-	/** The view path. */
-	public static final String VIEW_PATH = "/jsp";
+    /** The view path. */
+    public static final String VIEW_PATH = "/jsp";
 
-	/** The view suffix. */
-	public static final String VIEW_SUFFIX = ".jsp";
+    /** The view suffix. */
+    public static final String VIEW_SUFFIX = ".jsp";
 
-	/** The layout path. */
-	public static final String LAYOUT_PATH = VIEW_PATH + "/layout";
+    /** The layout path. */
+    public static final String LAYOUT_PATH = VIEW_PATH + "/layout";
 
-	/** Name of the property that holds the main layout file. */
-	public static final String LAYOUT_PROPERTY = "sjmvc.layout.main";
+    /** Name of the property that holds the main layout file. */
+    public static final String LAYOUT_PROPERTY = "sjmvc.layout.main";
 
-	// Controller configuration
+    /** The attribute name where the model will be published. */
+    public static final String MODEL_ATTRIBUTE = "model";
 
-	/** The prefix for controller mapping properties. */
-	public static final String CONTROLLER_PREFIX = "sjmvc.controller.";
+    /** The attribute name where the controller errors will be published. */
+    public static final String ERRORS_ATTRIBUTE = "errors";
 
-	/** The suffix for controller path mapping properties. */
-	public static final String CONTROLLER_PATH_SUFFIX = ".path";
+    // Controller configuration
 
-	/** The suffix for controller class mapping properties. */
-	public static final String CONTROLLER_CLASS_SUFFIX = ".class";
+    /** The prefix for controller mapping properties. */
+    public static final String CONTROLLER_PREFIX = "sjmvc.controller.";
 
-	// Main configuration
+    /** The suffix for controller path mapping properties. */
+    public static final String CONTROLLER_PATH_SUFFIX = ".path";
 
-	/** The main configuration file. */
-	private static final String CONFIG_FILE = "sjmvc.properties";
+    /** The suffix for controller class mapping properties. */
+    public static final String CONTROLLER_CLASS_SUFFIX = ".class";
 
-	/** The singleton instance of the configuration object. */
-	private static Configuration instance;
+    // Main configuration
 
-	/** The configuration properties. */
-	private Properties properties;
+    /** The main configuration file. */
+    private static final String CONFIG_FILE = "sjmvc.properties";
 
-	/**
-	 * Private constructor. This class should ot be instantiated.
-	 */
-	private Configuration()
-	{
-		super();
-	}
+    /** The singleton instance of the configuration object. */
+    private static Configuration instance;
 
-	/**
-	 * Gets the configuration properties.
-	 * 
-	 * @return The configuration properties.
-	 */
-	public static Properties getConfiguration()
-	{
-		if (instance == null)
-		{
-			instance = new Configuration();
+    /** The configuration properties. */
+    private Properties properties;
 
-			LOGGER.debug("Loading configuration from {}", CONFIG_FILE);
+    /**
+     * Private constructor. This class should ot be instantiated.
+     */
+    private Configuration()
+    {
+        super();
+    }
 
-			// Load properties
-			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			instance.properties = new Properties();
+    /**
+     * Gets the configuration properties.
+     * 
+     * @return The configuration properties.
+     */
+    public static Properties getConfiguration()
+    {
+        if (instance == null)
+        {
+            instance = new Configuration();
 
-			try
-			{
-				instance.properties.load(cl.getResourceAsStream(CONFIG_FILE));
-			}
-			catch (Exception ex)
-			{
-				throw new ConfigurationException(
-						"Could not load configuration file: " + ex.getMessage());
-			}
+            LOGGER.debug("Loading configuration from {}", CONFIG_FILE);
 
-			LOGGER.debug("Loaded {} configuration properties",
-					instance.properties.size());
-		}
+            // Load properties
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            instance.properties = new Properties();
 
-		return instance.properties;
-	}
+            try
+            {
+                instance.properties.load(cl.getResourceAsStream(CONFIG_FILE));
+            }
+            catch (Exception ex)
+            {
+                throw new ConfigurationException("Could not load configuration file: "
+                    + ex.getMessage());
+            }
 
-	/**
-	 * Get the configuration value for the given property name.
-	 * 
-	 * @return The value for the given property or <code>null</code> if the
-	 *         value is not defined.
-	 */
-	public static String getConfigValue(String propertyName)
-	{
-		return getConfiguration().getProperty(propertyName);
-	}
+            LOGGER.debug("Loaded {} configuration properties", instance.properties.size());
+        }
 
-	/**
-	 * Checks if the given property defines a {@link Controller} mapping.
-	 * 
-	 * @param property The property to check.
-	 * @return Boolean indicating if the given property defines a
-	 *         <code>Controller</code> mapping.
-	 */
-	public static boolean isControllerProperty(String property)
-	{
-		return property.startsWith(CONTROLLER_PREFIX)
-				&& property.endsWith(CONTROLLER_PATH_SUFFIX);
-	}
+        return instance.properties;
+    }
+
+    /**
+     * Get the configuration value for the given property name.
+     * 
+     * @return The value for the given property or <code>null</code> if the value is not defined.
+     */
+    public static String getConfigValue(String propertyName)
+    {
+        return getConfiguration().getProperty(propertyName);
+    }
+
+    /**
+     * Checks if the given property defines a {@link Controller} mapping.
+     * 
+     * @param property The property to check.
+     * @return Boolean indicating if the given property defines a <code>Controller</code> mapping.
+     */
+    public static boolean isControllerProperty(String property)
+    {
+        return property.startsWith(CONTROLLER_PREFIX) && property.endsWith(CONTROLLER_PATH_SUFFIX);
+    }
 
 }

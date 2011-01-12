@@ -29,6 +29,7 @@ import static org.testng.Assert.fail;
 
 import java.util.List;
 
+import org.sjmvc.config.Configuration;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -43,92 +44,88 @@ import com.meterware.servletunit.ServletUnitClient;
  */
 public class MethodInvokingControllerTest
 {
-	/** The base path used for web requests. */
-	private static final String BASE_PATH = "http://sjmvc.org/sjmvc/web/mock";
+    /** The base path used for web requests. */
+    private static final String BASE_PATH = "http://sjmvc.org/sjmvc/web/mock";
 
-	/** The controller being tested. */
-	private MockController controller;
+    /** The controller being tested. */
+    private MockController controller;
 
-	/** The servlet client used to perform unit tests. */
-	private ServletUnitClient servletClient;
+    /** The servlet client used to perform unit tests. */
+    private ServletUnitClient servletClient;
 
-	@BeforeMethod
-	public void setUp()
-	{
-		controller = new MockController();
-		servletClient = new ServletRunner().newClient();
-	}
+    @BeforeMethod
+    public void setUp()
+    {
+        controller = new MockController();
+        servletClient = new ServletRunner().newClient();
+    }
 
-	@Test
-	public void testUnexistingMethod() throws Exception
-	{
-		InvocationContext ic = servletClient.newInvocation(BASE_PATH
-				+ "/unexisting");
+    @Test
+    public void testUnexistingMethod() throws Exception
+    {
+        InvocationContext ic = servletClient.newInvocation(BASE_PATH + "/unexisting");
 
-		checkControllerException(ic, NoSuchMethodException.class);
-		assertFalse(controller.errors());
-	}
+        checkControllerException(ic, NoSuchMethodException.class);
+        assertFalse(controller.errors());
+    }
 
-	@Test
-	public void testSuccessMethod() throws Exception
-	{
-		InvocationContext ic = servletClient.newInvocation(BASE_PATH
-				+ "/success");
-		controller.execute(ic.getRequest(), ic.getResponse());
+    @Test
+    public void testSuccessMethod() throws Exception
+    {
+        InvocationContext ic = servletClient.newInvocation(BASE_PATH + "/success");
+        controller.execute(ic.getRequest(), ic.getResponse());
 
-		assertFalse(controller.errors());
-		assertEquals(controller.getView(), "success");
-	}
+        assertFalse(controller.errors());
+        assertEquals(controller.getView(), "success");
+    }
 
-	@Test
-	public void testFailMethod() throws Exception
-	{
-		InvocationContext ic = servletClient.newInvocation(BASE_PATH + "/fail");
+    @Test
+    public void testFailMethod() throws Exception
+    {
+        InvocationContext ic = servletClient.newInvocation(BASE_PATH + "/fail");
 
-		checkControllerException(ic, UnsupportedOperationException.class);
-		assertFalse(controller.errors());
-		assertEquals(controller.getView(), "fail");
-	}
+        checkControllerException(ic, UnsupportedOperationException.class);
+        assertFalse(controller.errors());
+        assertEquals(controller.getView(), "fail");
+    }
 
-	@Test
-	public void testInvalidArgumentsMethod() throws Exception
-	{
-		InvocationContext ic = servletClient.newInvocation(BASE_PATH
-				+ "/invalidArguments");
+    @Test
+    public void testInvalidArgumentsMethod() throws Exception
+    {
+        InvocationContext ic = servletClient.newInvocation(BASE_PATH + "/invalidArguments");
 
-		checkControllerException(ic, IllegalArgumentException.class);
-		assertFalse(controller.errors());
-		assertEquals(controller.getView(), "invalidArguments");
-	}
+        checkControllerException(ic, IllegalArgumentException.class);
+        assertFalse(controller.errors());
+        assertEquals(controller.getView(), "invalidArguments");
+    }
 
-	@Test
-	public void testMethodWithErrors() throws Exception
-	{
-		InvocationContext ic = servletClient.newInvocation(BASE_PATH
-				+ "/addError");
-		controller.execute(ic.getRequest(), ic.getResponse());
+    @Test
+    public void testMethodWithErrors() throws Exception
+    {
+        InvocationContext ic = servletClient.newInvocation(BASE_PATH + "/addError");
+        controller.execute(ic.getRequest(), ic.getResponse());
 
-		@SuppressWarnings("unchecked")
-		List<String> errors = (List<String>) ic.getRequest().getAttribute(
-				MethodInvokingController.ERRORS_ATTRIBUTE);
+        @SuppressWarnings("unchecked")
+        List<String> errors =
+            (List<String>) ic.getRequest().getAttribute(Configuration.ERRORS_ATTRIBUTE);
 
-		assertTrue(controller.errors());
-		assertEquals(controller.getView(), "addError");
-		assertEquals(errors.size(), 1);
-		assertEquals(controller.errors.errorCount(), 1);
-	}
+        assertTrue(controller.errors());
+        assertEquals(controller.getView(), "addError");
+        assertEquals(errors.size(), 1);
+        assertEquals(controller.errors.errorCount(), 1);
+    }
 
-	private void checkControllerException(InvocationContext ic,
-			Class<? extends Throwable> exceptionClass)
-	{
-		try
-		{
-			controller.execute(ic.getRequest(), ic.getResponse());
-			fail("Expected Exception: " + exceptionClass.getName());
-		}
-		catch (ControllerException ex)
-		{
-			assertEquals(ex.getCause().getClass(), exceptionClass);
-		}
-	}
+    private void checkControllerException(InvocationContext ic,
+        Class< ? extends Throwable> exceptionClass)
+    {
+        try
+        {
+            controller.execute(ic.getRequest(), ic.getResponse());
+            fail("Expected Exception: " + exceptionClass.getName());
+        }
+        catch (ControllerException ex)
+        {
+            assertEquals(ex.getCause().getClass(), exceptionClass);
+        }
+    }
 }
