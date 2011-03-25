@@ -50,7 +50,7 @@ public abstract class AbstractController implements Controller
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractController.class);
 
     /** List of errors produced during method execution. */
-    final Errors errors = new Errors();
+    protected final Errors errors = new Errors();
 
     /** The validator used to validate model objects. */
     private Validator validator;
@@ -207,7 +207,7 @@ public abstract class AbstractController implements Controller
      * 
      * @return Boolean indicating if there are any errors.
      */
-    protected boolean errors()
+    public boolean errors()
     {
         return errors.hasErrors();
     }
@@ -267,6 +267,11 @@ public abstract class AbstractController implements Controller
     public void setUseLayout(final boolean useLayout)
     {
         this.useLayout = useLayout;
+    }
+
+    public Errors getErrors()
+    {
+        return errors;
     }
 
 }
