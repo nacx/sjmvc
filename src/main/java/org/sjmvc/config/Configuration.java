@@ -58,6 +58,12 @@ public class Configuration
     /** The attribute name where the controller errors will be published. */
     public static final String ERRORS_ATTRIBUTE = "errors";
 
+    /** The attribute name where the controller publishes if a layout must be used. */
+    public static final String USE_LAYOUT_ATTRIBUTE = "useLayout";
+
+    /** The attribute name where the current view will be published. */
+    public static final String CURRENT_VIEW_ATTRIBUTE = "currentView";
+
     // Controller configuration
 
     /** The prefix for controller mapping properties. */
@@ -126,7 +132,7 @@ public class Configuration
      * 
      * @return The value for the given property or <code>null</code> if the value is not defined.
      */
-    public static String getConfigValue(String propertyName)
+    public static String getConfigValue(final String propertyName)
     {
         return getConfiguration().getProperty(propertyName);
     }
@@ -137,7 +143,7 @@ public class Configuration
      * @param property The property to check.
      * @return Boolean indicating if the given property defines a <code>Controller</code> mapping.
      */
-    public static boolean isControllerProperty(String property)
+    public static boolean isControllerProperty(final String property)
     {
         return property.startsWith(CONTROLLER_PREFIX) && property.endsWith(CONTROLLER_PATH_SUFFIX);
     }

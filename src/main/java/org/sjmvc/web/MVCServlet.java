@@ -39,100 +39,98 @@ import org.slf4j.LoggerFactory;
  * Process requests performed from the Web UI.
  * 
  * @author Ignasi Barrera
- * 
  * @see Controller
  * @see RequestDispatcher
  * @see PathBasedRequestDispatcher
  */
 public class MVCServlet extends HttpServlet
 {
-	/** The logger. */
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(MVCServlet.class);
+    /** The logger. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(MVCServlet.class);
 
-	/** Serial UID. */
-	private static final long serialVersionUID = 1L;
+    /** Serial UID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The request dispatcher used to dispatch requests to {@link Controller}. */
-	private RequestDispatcher dispatcher;
+    /** The request dispatcher used to dispatch requests to {@link Controller}. */
+    private RequestDispatcher dispatcher;
 
-	/** The main layout file to use in the application. */
-	protected String layout;
+    /** The main layout file to use in the application. */
+    protected String layout;
 
-	/**
-	 * Initializes the servlet.
-	 * 
-	 * @throws If the servlet cannot be initialized.
-	 */
-	@Override
-	public void init() throws ServletException
-	{
-		try
-		{
-			dispatcher = new PathBasedRequestDispatcher();
-			readConfiguration();
-		}
-		catch (Exception ex)
-		{
-			throw new ServletException("Could not read MVC configuration: "
-					+ ex.getMessage(), ex);
-		}
-	}
+    /**
+     * Initializes the servlet.
+     * 
+     * @throws If the servlet cannot be initialized.
+     */
+    @Override
+    public void init() throws ServletException
+    {
+        try
+        {
+            dispatcher = new PathBasedRequestDispatcher();
+            readConfiguration();
+        }
+        catch (Exception ex)
+        {
+            throw new ServletException("Could not read MVC configuration: " + ex.getMessage(), ex);
+        }
+    }
 
-	@Override
-	protected void doGet(final HttpServletRequest req,
-			final HttpServletResponse resp) throws ServletException,
-			IOException
-	{
-		try
-		{
-			StatusExposingResponseWrapper response = new StatusExposingResponseWrapper(
-					resp);
-			dispatcher.dispatch(req, response);
+    @Override
+    protected void service(final HttpServletRequest req, final HttpServletResponse resp)
+        throws ServletException, IOException
+    {
+        try
+        {
+            StatusExposingResponseWrapper response = new StatusExposingResponseWrapper(resp);
+            dispatcher.dispatch(req, response);
 
-			// Only forward if no errors have been committed to the response
-			if (response.isOk())
-			{
-				getServletContext().getRequestDispatcher(layout).forward(req,
-						response);
-			}
-		}
-		catch (Exception ex)
-		{
-			String errorMessage = "An error occured during request handling: "
-					+ ex.getMessage();
+            // Only forward if no errors have been committed to the response
+            if (response.isOk())
+            {
+                String viewToRender = null;
+                Boolean useLayout = (Boolean) req.getAttribute(Configuration.USE_LAYOUT_ATTRIBUTE);
+                String currentView =
+                    (String) req.getAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE);
 
-			LOGGER.error(errorMessage, ex);
+                if (useLayout != null && useLayout.equals(Boolean.TRUE))
+                {
+                    viewToRender = layout;
+                }
+                else
+                {
+                    viewToRender = currentView;
+                }
 
-			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					errorMessage);
-		}
-	}
+                getServletContext().getRequestDispatcher(viewToRender).forward(req, response);
+            }
+        }
+        catch (Exception ex)
+        {
+            String errorMessage = "An error occured during request handling: " + ex.getMessage();
 
-	@Override
-	protected void doPost(final HttpServletRequest req,
-			final HttpServletResponse resp) throws ServletException,
-			IOException
-	{
-		doGet(req, resp);
-	}
+            LOGGER.error(errorMessage, ex);
 
-	/**
-	 * Load configured controller mappings.
-	 * 
-	 * @throws Exception If mappings cannot be loaded.
-	 */
-	protected void readConfiguration() throws ConfigurationException
-	{
-		layout = Configuration.getConfigValue(Configuration.LAYOUT_PROPERTY);
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, errorMessage);
+        }
+    }
 
-		if (layout == null)
-		{
-			throw new ConfigurationException("Layout file must be set");
-		}
+    /**
+     * Load configured controller mappings.
+     * 
+     * @throws Exception If mappings cannot be loaded.
+     */
+    protected void readConfiguration() throws ConfigurationException
+    {
+        layout = Configuration.getConfigValue(Configuration.LAYOUT_PROPERTY);
 
-		layout = Configuration.LAYOUT_PATH + "/" + layout;
+        if (layout == null)
+        {
+            throw new ConfigurationException("Layout file must be set");
+        }
 
-		LOGGER.info("Using {} as the main layout", layout);
-	}
+        layout = Configuration.LAYOUT_PATH + "/" + layout;
+
+        LOGGER.info("Using {} as the main layout", layout);
+    }
 }

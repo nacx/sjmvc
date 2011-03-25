@@ -61,7 +61,8 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
     }
 
     @Override
-    public void dispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception
+    public void dispatch(final HttpServletRequest req, final HttpServletResponse resp)
+        throws Exception
     {
         LOGGER.debug("Looking for a controller to handle request to: {}", req.getRequestURI());
 
@@ -90,7 +91,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
                 Configuration.VIEW_PATH + controllerPath + "/" + viewName
                     + Configuration.VIEW_SUFFIX;
 
-            req.setAttribute("currentView", viewPath);
+            req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, viewPath);
         }
         else
         {

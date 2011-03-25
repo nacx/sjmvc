@@ -28,52 +28,63 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Controller that delegates execution to a specific method based on the request
- * path.
+ * Controller that delegates execution to a specific method based on the request path.
  * 
  * @author Ignasi Barrera
- * 
  * @param <T> The type of the model object.
- * 
  * @see Controller
  */
 public class MethodInvokingController extends AbstractController
 {
 
-	@Override
-	public void doExecute(final HttpServletRequest request,
-			final HttpServletResponse response) throws Exception
-	{
-		// Get the name of the method
-		int lastSlash = request.getRequestURI().lastIndexOf("/");
-		String methodName = request.getRequestURI().substring(lastSlash + 1);
+    @Override
+    public void doExecute(final HttpServletRequest request, final HttpServletResponse response)
+        throws Exception
+    {
+        // Get the name of the method
+        int lastSlash = request.getRequestURI().lastIndexOf("/");
+        String methodName = request.getRequestURI().substring(lastSlash + 1);
 
-		// Find the target method
-		Method targetMethod = null;
+        doInvoke(methodName, request, response);
+    }
 
-		for (Method method : this.getClass().getMethods())
-		{
-			if (method.getName().equals(methodName))
-			{
-				targetMethod = method;
-				break;
-			}
-		}
+    /**
+     * Invoke the target method.
+     * 
+     * @param methodName The name of the method.
+     * @param request The request.
+     * @param response The response.
+     * @throws Exception If an error occurs during method invocation.
+     */
+    protected void doInvoke(final String methodName, final HttpServletRequest request,
+        final HttpServletResponse response) throws Exception
+    {
+        // Find the target method
+        Method targetMethod = null;
 
-		if (targetMethod == null)
-		{
-			String message = "Could not find a Controller method with name "
-					+ methodName + " in class " + this.getClass().getName();
+        for (Method method : this.getClass().getMethods())
+        {
+            if (method.getName().equals(methodName))
+            {
+                targetMethod = method;
+                break;
+            }
+        }
 
-			throw new ControllerException(message, new NoSuchMethodException(
-					message));
-		}
+        if (targetMethod == null)
+        {
+            String message =
+                "Could not find a Controller method with name " + methodName + " in class "
+                    + this.getClass().getName();
 
-		// Set the default view to return
-		setView(methodName);
+            throw new ControllerException(message, new NoSuchMethodException(message));
+        }
 
-		// Execute the target method (parent class will handle exceptions)
-		targetMethod.invoke(this, request, response);
-	}
+        // Set the default view to return
+        setView(methodName);
+
+        // Execute the target method (parent class will handle exceptions)
+        targetMethod.invoke(this, request, response);
+    }
 
 }

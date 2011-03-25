@@ -61,6 +61,9 @@ public abstract class AbstractController implements Controller
     /** The model to render. */
     private Object model;
 
+    /** Boolean indicating if the layout file must be used. */
+    private boolean useLayout = true;
+
     /**
      * Creates a new <code>AbstractController</code> with default values.
      */
@@ -112,6 +115,7 @@ public abstract class AbstractController implements Controller
         }
 
         request.setAttribute(Configuration.ERRORS_ATTRIBUTE, errors.getErrors());
+        request.setAttribute(Configuration.USE_LAYOUT_ATTRIBUTE, Boolean.valueOf(useLayout));
 
         return returnView;
     }
@@ -151,7 +155,7 @@ public abstract class AbstractController implements Controller
      * @param model The model object where to bind the request parameters.
      * @param request The request containing the input parameters.
      */
-    protected <T> void bind(T model, HttpServletRequest request)
+    protected <T> void bind(final T model, final HttpServletRequest request)
     {
         RequestParameterBinder<T> binder = new RequestParameterBinder<T>(model, request);
         BindingResult<T> bindingErrors = binder.bind();
@@ -165,7 +169,7 @@ public abstract class AbstractController implements Controller
      * @param <T> The type of the model object to validate.
      * @param model The object model to validate.
      */
-    protected <T> void validate(T model)
+    protected <T> void validate(final T model)
     {
         errors.addAll(validator.validate(model));
     }
@@ -177,7 +181,7 @@ public abstract class AbstractController implements Controller
      * @param model The model object where to bind the request parameters.
      * @param request The request containing the input parameters.
      */
-    protected <T> void bindAndValidate(T model, HttpServletRequest request)
+    protected <T> void bindAndValidate(final T model, final HttpServletRequest request)
     {
         bind(model, request);
 
@@ -223,7 +227,7 @@ public abstract class AbstractController implements Controller
 
     // Getters and setters
 
-    protected void setView(String viewName)
+    protected void setView(final String viewName)
     {
         LOGGER.debug("Setting view to: {}", viewName);
 
@@ -240,7 +244,7 @@ public abstract class AbstractController implements Controller
         return model;
     }
 
-    public void setModel(Object model)
+    public void setModel(final Object model)
     {
         this.model = model;
     }
@@ -250,9 +254,19 @@ public abstract class AbstractController implements Controller
         return validator;
     }
 
-    public void setValidator(Validator validator)
+    public void setValidator(final Validator validator)
     {
         this.validator = validator;
+    }
+
+    public boolean isUseLayout()
+    {
+        return useLayout;
+    }
+
+    public void setUseLayout(final boolean useLayout)
+    {
+        this.useLayout = useLayout;
     }
 
 }
