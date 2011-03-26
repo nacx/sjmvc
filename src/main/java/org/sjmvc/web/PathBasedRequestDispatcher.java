@@ -94,12 +94,12 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 			if (mapping.getLayout() != null)
 			{
 				String layoutPath = Configuration.LAYOUT_PATH + "/" + mapping.getLayout();
-				req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, layoutPath);
+				req.setAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE, layoutPath);
 			}
 
 			String viewPath = Configuration.VIEW_PATH + mapping.getPath()
 					+ "/" + viewName + Configuration.VIEW_SUFFIX;
-			req.setAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE, viewPath);
+			req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, viewPath);
 		}
 		else
 		{
