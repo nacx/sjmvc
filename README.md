@@ -1,9 +1,9 @@
 Simple MVC framework for Java
 =============================
        
-SJMVC is a simple MVC framework for Java, that provides an easy
-way to develop Java based web applications following common best
-practices keeping things as simple as possible.
+SJMVC is a lightweight MVC framework for Java, that provides an
+easyway to develop Java based web applications following common
+best practices keeping things as simple as possible.
 
 
 Compiling SJMVC
