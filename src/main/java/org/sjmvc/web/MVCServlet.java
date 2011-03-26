@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sjmvc.config.Configuration;
-import org.sjmvc.config.ConfigurationException;
 import org.sjmvc.controller.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +53,6 @@ public class MVCServlet extends HttpServlet
     /** The request dispatcher used to dispatch requests to {@link Controller}. */
     private RequestDispatcher dispatcher;
 
-    /** The main layout file to use in the application. */
-    protected String layout;
-
     /**
      * Initializes the servlet.
      * 
@@ -68,7 +64,6 @@ public class MVCServlet extends HttpServlet
         try
         {
             dispatcher = new PathBasedRequestDispatcher();
-            readConfiguration();
         }
         catch (Exception ex)
         {
@@ -88,20 +83,10 @@ public class MVCServlet extends HttpServlet
             // Only forward if no errors have been committed to the response
             if (response.isOk())
             {
-                String viewToRender = null;
-                Boolean useLayout = (Boolean) req.getAttribute(Configuration.USE_LAYOUT_ATTRIBUTE);
-                String currentView =
-                    (String) req.getAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE);
+                String currentLayout = (String) req.getAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE);
+                String currentView = (String) req.getAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE);
 
-                if (useLayout != null && useLayout.equals(Boolean.TRUE))
-                {
-                    viewToRender = layout;
-                }
-                else
-                {
-                    viewToRender = currentView;
-                }
-
+                String viewToRender = (currentLayout != null)? currentLayout : currentView;                
                 getServletContext().getRequestDispatcher(viewToRender).forward(req, response);
             }
         }
@@ -113,24 +98,5 @@ public class MVCServlet extends HttpServlet
 
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, errorMessage);
         }
-    }
-
-    /**
-     * Load configured controller mappings.
-     * 
-     * @throws Exception If mappings cannot be loaded.
-     */
-    protected void readConfiguration() throws ConfigurationException
-    {
-        layout = Configuration.getConfigValue(Configuration.LAYOUT_PROPERTY);
-
-        if (layout == null)
-        {
-            throw new ConfigurationException("Layout file must be set");
-        }
-
-        layout = Configuration.LAYOUT_PATH + "/" + layout;
-
-        LOGGER.info("Using {} as the main layout", layout);
     }
 }

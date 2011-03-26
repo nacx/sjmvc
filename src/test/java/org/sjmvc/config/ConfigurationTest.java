@@ -44,25 +44,23 @@ public class ConfigurationTest
 {
 
 	@Test
-	public void testIsConfigProperty()
+	public void testIsConfigPathProperty()
 	{
-		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX
+		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX
 				+ CONTROLLER_PATH_SUFFIX));
-		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + " "
+		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX + " "
 				+ CONTROLLER_PATH_SUFFIX));
-		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX
+		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX
 				+ "test" + CONTROLLER_PATH_SUFFIX));
-		assertTrue(Configuration.isControllerProperty(CONTROLLER_PREFIX + "."
+		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX + "."
 				+ CONTROLLER_PATH_SUFFIX));
 
-		assertFalse(Configuration.isControllerProperty(""));
-		assertFalse(Configuration.isControllerProperty("test"));
-		assertFalse(Configuration.isControllerProperty(CONTROLLER_PREFIX));
-		assertFalse(Configuration.isControllerProperty(CONTROLLER_PATH_SUFFIX));
-		assertFalse(Configuration.isControllerProperty(CONTROLLER_PREFIX
-				+ "test"));
-		assertFalse(Configuration.isControllerProperty("test"
-				+ CONTROLLER_PATH_SUFFIX));
+		assertFalse(Configuration.isControllerPathProperty(""));
+		assertFalse(Configuration.isControllerPathProperty("test"));
+		assertFalse(Configuration.isControllerPathProperty(CONTROLLER_PREFIX));
+		assertFalse(Configuration.isControllerPathProperty(CONTROLLER_PATH_SUFFIX));
+		assertFalse(Configuration.isControllerPathProperty(CONTROLLER_PREFIX + "test"));
+		assertFalse(Configuration.isControllerPathProperty("test" + CONTROLLER_PATH_SUFFIX));
 	}
 
 	@Test
@@ -78,10 +76,9 @@ public class ConfigurationTest
 	public void testGetConfigValue()
 	{
 		// Existing properties
-		assertEquals(getConfigValue("sjmvc.layout.main"), "layout.jsp");
 		assertEquals(getConfigValue("sjmvc.controller.mock.path"), "/mock");
-		assertEquals(getConfigValue("sjmvc.controller.mock.class"),
-				"org.sjmvc.controller.MockController");
+		assertEquals(getConfigValue("sjmvc.controller.mock.layout"), "layout.jsp");
+		assertEquals(getConfigValue("sjmvc.controller.mock.class"), "org.sjmvc.controller.MockController");
 
 		// Unexisting properties
 		assertEquals(getConfigValue("sjmvc.unexisting"), null);

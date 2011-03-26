@@ -22,42 +22,67 @@
 
 package org.sjmvc.web;
 
-import static org.testng.Assert.assertEquals;
+import java.io.Serializable;
 
-import org.sjmvc.controller.MockController;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.sjmvc.controller.Controller;
 
 /**
- * Unit tests for the {@link PathBasedRequestDispatcher} class.
+ * This class holds the resource mapping configuration such as the resource URI,
+ * the controller class used to handle request to the mapped resource and the
+ * layout to use when rendering the resolved view.
  * 
  * @author Ignasi Barrera
- * 
+ * @see Controller
+ * @see PathBasedRequestDispatcher
  */
-public class PathBasedRequestDispatcherTest
+public class ResourceMapping implements Serializable
 {
-	// Request handling unit testing is covered in the MVCServletTest class
+	/** Serial UID. */
+	private static final long serialVersionUID = 1L;
 
-	/** The request dispatcher to test. */
-	private PathBasedRequestDispatcher dispatcher;
+	/** The {@link Controller} class. */
+	private Class<Controller> controllerClass;
 
-	@BeforeMethod
-	public void setUp()
+	/** The mapped resource path. */
+	private String path;
+
+	/**
+	 * The layout to use to render the resolved views.
+	 * <p>
+	 * If this property is <code>null</code> no layout will be used.
+	 */
+	private String layout;
+
+	// Getters and setters
+
+	public Class<Controller> getControllerClass()
 	{
-		dispatcher = new PathBasedRequestDispatcher();
+		return controllerClass;
 	}
 
-	@Test
-	public void testReadConfiguration()
+	public void setControllerClass(Class<Controller> controllerClass)
 	{
-		dispatcher.readConfiguration();
-		
-		assertEquals(dispatcher.mappings.size(), 1);
-		
-		ResourceMapping mapping = dispatcher.mappings.get("/mock");
-		
-		assertEquals(mapping.getPath(), "/mock");
-		assertEquals(mapping.getLayout(), "layout.jsp");
-		assertEquals(mapping.getControllerClass(), MockController.class);
+		this.controllerClass = controllerClass;
 	}
+
+	public String getPath()
+	{
+		return path;
+	}
+
+	public void setPath(String path)
+	{
+		this.path = path;
+	}
+
+	public String getLayout()
+	{
+		return layout;
+	}
+
+	public void setLayout(String layout)
+	{
+		this.layout = layout;
+	}
+
 }

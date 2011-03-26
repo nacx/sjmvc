@@ -53,17 +53,12 @@ public class MVCServletTest
 	/** The base path used for web requests. */
 	private static final String BASE_PATH = "http://sjmvc.org/sjmvc/web";
 
-	/** The servlet being tested. */
-	private MVCServlet mvcServlet;
-
 	/** The servlet client used to perform unit tests. */
 	private ServletUnitClient servletClient;
 
 	@BeforeMethod
 	public void setUp()
 	{
-		mvcServlet = new MVCServlet();
-
 		ServletRunner servletRunner = new ServletRunner();
 		servletRunner
 				.registerServlet("sjmvc/web/*", MVCServlet.class.getName());
@@ -71,19 +66,10 @@ public class MVCServletTest
 	}
 
 	@Test
-	public void testReadConfiguration() throws Exception
-	{
-		mvcServlet.readConfiguration();
-		assertEquals(mvcServlet.layout, "/jsp/layout/layout.jsp");
-	}
-
-	@Test
 	public void testHandleUnmappedRequest() throws Exception
 	{
-		WebRequest request = new PostMethodWebRequest(BASE_PATH
-				+ "/unmapped/test");
-		HttpException ex = checkReponseError(request,
-				HttpServletResponse.SC_NOT_FOUND);
+		WebRequest request = new PostMethodWebRequest(BASE_PATH + "/unmapped/test");
+		HttpException ex = checkReponseError(request, HttpServletResponse.SC_NOT_FOUND);
 
 		// Ensure MVC servlet has not tried to load the view
 		assertFalse(ex.getMessage().contains(".jsp"));
@@ -93,13 +79,10 @@ public class MVCServletTest
 	public void testControllerError() throws Exception
 	{
 		WebRequest request1 = new PostMethodWebRequest(BASE_PATH + "/mock/fail");
-		WebRequest request2 = new PostMethodWebRequest(BASE_PATH
-				+ "/mock/invalidArguments");
+		WebRequest request2 = new PostMethodWebRequest(BASE_PATH + "/mock/invalidArguments");
 
-		checkReponseError(request1,
-				HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		checkReponseError(request2,
-				HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		checkReponseError(request1, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		checkReponseError(request2, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
 
 	private HttpException checkReponseError(WebRequest request, int expectedCode)

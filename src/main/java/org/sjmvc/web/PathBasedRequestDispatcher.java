@@ -42,122 +42,138 @@ import org.slf4j.LoggerFactory;
  */
 public class PathBasedRequestDispatcher implements RequestDispatcher
 {
-    /** The logger. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(PathBasedRequestDispatcher.class);
+	/** The logger. */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(PathBasedRequestDispatcher.class);
 
-    /** Mappings from request path to {@link Controller} class objects. */
-    protected Map<String, Class<Controller>> controllerClasses;
+	/** Mappings from request path to {@link ResourceMapping} objects. */
+	protected Map<String, ResourceMapping> mappings;
 
-    /**
-     * Creates the request dispatcher.
-     * 
-     * @throws ConfigurationException If controller mapping configuration cannot be read.
-     */
-    public PathBasedRequestDispatcher() throws ConfigurationException
-    {
-        super();
-        controllerClasses = new HashMap<String, Class<Controller>>();
-        readConfiguration();
-    }
+	/**
+	 * Creates the request dispatcher.
+	 * 
+	 * @throws ConfigurationException If controller mapping configuration cannot
+	 *             be read.
+	 */
+	public PathBasedRequestDispatcher() throws ConfigurationException
+	{
+		super();
+		mappings = new HashMap<String, ResourceMapping>();
+		readConfiguration();
+	}
 
-    @Override
-    public void dispatch(final HttpServletRequest req, final HttpServletResponse resp)
-        throws Exception
-    {
-        LOGGER.debug("Looking for a controller to handle request to: {}", req.getRequestURI());
+	@Override
+	public void dispatch(final HttpServletRequest req, final HttpServletResponse resp) throws Exception
+	{
+		LOGGER.debug("Looking for a controller to handle request to: {}",
+				req.getRequestURI());
 
-        String controllerPath = null;
-        Class<Controller> controllerClass = null;
-        String requestedPath = getRequestedPath(req);
+		ResourceMapping mapping = null;
+		String requestedPath = getRequestedPath(req);
 
-        for (String path : controllerClasses.keySet())
-        {
-            if (requestedPath.startsWith(path))
-            {
-                controllerPath = path;
-                controllerClass = controllerClasses.get(path);
+		for (String path : mappings.keySet())
+		{
+			if (requestedPath.startsWith(path))
+			{
+				mapping = mappings.get(path);
 
-                LOGGER.debug("Using {} controller to handle request to: {}", controllerClass
-                    .getName(), req.getRequestURI());
-            }
-        }
+				LOGGER.debug("Using {} controller to handle request to: {}",
+						mapping.getClass().getName(), req.getRequestURI());
+			}
+		}
 
-        if (controllerClass != null)
-        {
-            // Instantiate the controller on each request to make it thread-safe
-            Controller controller = controllerClass.newInstance();
-            String viewName = controller.execute(req, resp);
-            String viewPath =
-                Configuration.VIEW_PATH + controllerPath + "/" + viewName
-                    + Configuration.VIEW_SUFFIX;
+		if (mapping != null)
+		{
+			// Instantiate the controller on each request to make it thread-safe
+			Controller controller = mapping.getControllerClass().newInstance();
 
-            req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, viewPath);
-        }
-        else
-        {
-            LOGGER.error("No controller was found to handle request to: {}", req.getRequestURI());
+			// Execute controller logic and get the view to render
+			String viewName = controller.execute(req, resp);
 
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND,
-                "No controller was found to handle request to: " + req.getRequestURI());
-        }
-    }
+			// Publish the view and layout attributes to render the view
+			if (mapping.getLayout() != null)
+			{
+				String layoutPath = Configuration.LAYOUT_PATH + "/" + mapping.getLayout();
+				req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, layoutPath);
+			}
 
-    /**
-     * Get the requested path relative to the servlet path.
-     * 
-     * @param req The request.
-     * @return The requested path.
-     */
-    private String getRequestedPath(final HttpServletRequest req)
-    {
-        return req.getRequestURI().replaceFirst(req.getContextPath(), "").replaceFirst(
-            req.getServletPath(), "");
-    }
+			String viewPath = Configuration.VIEW_PATH + mapping.getPath()
+					+ "/" + viewName + Configuration.VIEW_SUFFIX;
+			req.setAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE, viewPath);
+		}
+		else
+		{
+			LOGGER.error("No controller was found to handle request to: {}", req.getRequestURI());
 
-    /**
-     * Load configured controller mappings.
-     * 
-     * @throws Exception If mappings cannot be loaded.
-     */
-    protected void readConfiguration() throws ConfigurationException
-    {
-        Properties config = Configuration.getConfiguration();
+			resp.sendError( HttpServletResponse.SC_NOT_FOUND,
+					"No controller was found to handle request to: "
+							+ req.getRequestURI());
+		}
+	}
 
-        LOGGER.info("Loading controller mappings...");
+	/**
+	 * Get the requested path relative to the servlet path.
+	 * 
+	 * @param req The request.
+	 * @return The requested path.
+	 */
+	private String getRequestedPath(final HttpServletRequest req)
+	{
+		return req.getRequestURI().replaceFirst(req.getContextPath(), "")
+				.replaceFirst(req.getServletPath(), "");
+	}
 
-        for (Object mappingKey : config.keySet())
-        {
-            String key = (String) mappingKey;
+	/**
+	 * Load configured controller mappings.
+	 * 
+	 * @throws Exception If mappings cannot be loaded.
+	 */
+	protected void readConfiguration() throws ConfigurationException
+	{
+		Properties config = Configuration.getConfiguration();
 
-            if (Configuration.isControllerProperty(key))
-            {
-                String path = config.getProperty(key);
-                String clazz =
-                    config.getProperty(key.replace(Configuration.CONTROLLER_PATH_SUFFIX,
-                        Configuration.CONTROLLER_CLASS_SUFFIX));
+		LOGGER.info("Loading controller mappings...");
 
-                if (clazz == null)
-                {
-                    throw new ConfigurationException("Missing controller class for path: " + path);
-                }
+		for (Object mappingKey : config.keySet())
+		{
+			String key = (String) mappingKey;
 
-                try
-                {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			if (Configuration.isControllerPathProperty(key))
+			{
+				String path = config.getProperty(key);
+				String clazz = config.getProperty(key.replace(
+						Configuration.CONTROLLER_PATH_SUFFIX,
+						Configuration.CONTROLLER_CLASS_SUFFIX));
+				String layout = config.getProperty(key.replace(
+						Configuration.CONTROLLER_PATH_SUFFIX,
+						Configuration.CONTROLLER_LAYOUT_SUFFIX));
 
-                    @SuppressWarnings("unchecked")
-                    Class<Controller> controllerClass =
-                        (Class<Controller>) Class.forName(clazz, true, cl);
+				if (clazz == null)
+				{
+					throw new ConfigurationException("Missing controller class for path: " + path);
+				}
 
-                    controllerClasses.put(path, controllerClass);
+				try
+				{
+					ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
-                    LOGGER.info("Mapping {} to {}", path, controllerClass.getName());
-                }
-                catch (Exception ex)
-                {
-                    throw new ConfigurationException("Could not get controller class: " + clazz);
-                }
-            }
-        }
-    }
+					@SuppressWarnings("unchecked")
+					Class<Controller> controllerClass = (Class<Controller>) Class.forName(clazz, true, cl);
+
+					ResourceMapping mapping = new ResourceMapping();
+					mapping.setPath(path);
+					mapping.setLayout(layout);
+					mapping.setControllerClass(controllerClass);
+
+					mappings.put(path, mapping);
+
+					LOGGER.info("Mapping {} to {}", path, controllerClass.getName());
+				}
+				catch (Exception ex)
+				{
+					throw new ConfigurationException("Could not get controller class: " + clazz);
+				}
+			}
+		}
+	}
 }

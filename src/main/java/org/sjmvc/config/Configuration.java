@@ -49,17 +49,14 @@ public class Configuration
     /** The layout path. */
     public static final String LAYOUT_PATH = VIEW_PATH + "/layout";
 
-    /** Name of the property that holds the main layout file. */
-    public static final String LAYOUT_PROPERTY = "sjmvc.layout.main";
-
     /** The attribute name where the model will be published. */
     public static final String MODEL_ATTRIBUTE = "model";
 
     /** The attribute name where the controller errors will be published. */
     public static final String ERRORS_ATTRIBUTE = "errors";
-
-    /** The attribute name where the controller publishes if a layout must be used. */
-    public static final String USE_LAYOUT_ATTRIBUTE = "useLayout";
+    
+    /** The attribute name where the current layout will be published. */
+    public static final String CURRENT_LAYOUT_ATTRIBUTE = "currentLayout";
 
     /** The attribute name where the current view will be published. */
     public static final String CURRENT_VIEW_ATTRIBUTE = "currentView";
@@ -71,6 +68,9 @@ public class Configuration
 
     /** The suffix for controller path mapping properties. */
     public static final String CONTROLLER_PATH_SUFFIX = ".path";
+    
+    /** The suffix for controller layout mapping properties. */
+    public static final String CONTROLLER_LAYOUT_SUFFIX = ".layout";
 
     /** The suffix for controller class mapping properties. */
     public static final String CONTROLLER_CLASS_SUFFIX = ".class";
@@ -138,12 +138,12 @@ public class Configuration
     }
 
     /**
-     * Checks if the given property defines a {@link Controller} mapping.
+     * Checks if the given property defines a {@link Controller} path mapping.
      * 
      * @param property The property to check.
      * @return Boolean indicating if the given property defines a <code>Controller</code> mapping.
      */
-    public static boolean isControllerProperty(final String property)
+    public static boolean isControllerPathProperty(final String property)
     {
         return property.startsWith(CONTROLLER_PREFIX) && property.endsWith(CONTROLLER_PATH_SUFFIX);
     }

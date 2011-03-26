@@ -61,9 +61,6 @@ public abstract class AbstractController implements Controller
     /** The model to render. */
     private Object model;
 
-    /** Boolean indicating if the layout file must be used. */
-    private boolean useLayout = true;
-
     /**
      * Creates a new <code>AbstractController</code> with default values.
      */
@@ -115,7 +112,6 @@ public abstract class AbstractController implements Controller
         }
 
         request.setAttribute(Configuration.ERRORS_ATTRIBUTE, errors.getErrors());
-        request.setAttribute(Configuration.USE_LAYOUT_ATTRIBUTE, Boolean.valueOf(useLayout));
 
         return returnView;
     }
@@ -257,16 +253,6 @@ public abstract class AbstractController implements Controller
     public void setValidator(final Validator validator)
     {
         this.validator = validator;
-    }
-
-    public boolean isUseLayout()
-    {
-        return useLayout;
-    }
-
-    public void setUseLayout(final boolean useLayout)
-    {
-        this.useLayout = useLayout;
     }
 
     public Errors getErrors()
