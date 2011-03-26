@@ -30,7 +30,7 @@
 	<scm>
 		<url>http://github.com/nacx/sjmvc</url>
 		<connection>scm:git:git://github.com/nacx/sjmvc.git</connection>
-		<developerConnection>scm:git:git://github.com/nacx/sjmvc.git</developerConnection>
+		<developerConnection>scm:git:git@github.com:nacx/sjmvc.git</developerConnection>
 	</scm>
 
 	<!-- Issue tracking -->
