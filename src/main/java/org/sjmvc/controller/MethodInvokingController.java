@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
  * Controller that delegates execution to a specific method based on the request path.
  * 
  * @author Ignasi Barrera
- * @param <T> The type of the model object.
  * @see Controller
  */
 public class MethodInvokingController extends AbstractController

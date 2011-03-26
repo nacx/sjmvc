@@ -55,9 +55,6 @@ public class RequestParameterBinder<T> extends
 
 	/**
 	 * Bind the given parameter map to the target object.
-	 * 
-	 * @param parameters The parameter map to bind.
-	 * @return The binding result.
 	 */
 	@Override
 	protected void doBind()
