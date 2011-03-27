@@ -89,17 +89,20 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 			// Execute controller logic and get the view to render
 			String viewName = controller.execute(req, resp);
-
-			// Publish the view and layout attributes to render the view
-			if (mapping.getLayout() != null)
+			
+			if (viewName != null)
 			{
-				String layoutPath = Configuration.LAYOUT_PATH + "/" + mapping.getLayout();
-				req.setAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE, layoutPath);
+				// Publish the view and layout attributes to render the view
+				if (mapping.getLayout() != null)
+				{
+					String layoutPath = Configuration.LAYOUT_PATH + "/" + mapping.getLayout();
+					req.setAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE, layoutPath);
+				}
+	
+				String viewPath = Configuration.VIEW_PATH + mapping.getPath()
+						+ "/" + viewName + Configuration.VIEW_SUFFIX;
+				req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, viewPath);
 			}
-
-			String viewPath = Configuration.VIEW_PATH + mapping.getPath()
-					+ "/" + viewName + Configuration.VIEW_SUFFIX;
-			req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, viewPath);
 		}
 		else
 		{
