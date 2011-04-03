@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sjmvc.config.Configuration;
 import org.sjmvc.controller.Controller;
+import org.sjmvc.web.dispatch.RequestDispatcher;
+import org.sjmvc.web.dispatch.path.PathBasedRequestDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

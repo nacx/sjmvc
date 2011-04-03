@@ -20,11 +20,13 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.web;
+package org.sjmvc.web.dispatch.path;
 
 import static org.testng.Assert.assertEquals;
 
 import org.sjmvc.controller.MockController;
+import org.sjmvc.web.ResourceMapping;
+import org.sjmvc.web.dispatch.path.PathBasedRequestDispatcher;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.web;
+package org.sjmvc.web.dispatch.path;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.sjmvc.config.Configuration;
 import org.sjmvc.config.ConfigurationException;
 import org.sjmvc.controller.Controller;
+import org.sjmvc.web.ResourceMapping;
+import org.sjmvc.web.dispatch.RequestDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,8 @@ import org.slf4j.LoggerFactory;
  * Base class for the {@link RequestDispatcher} implementations.
  * 
  * @author Ignasi Barrera
+ * 
+ * @see PathMatcher
  */
 public class PathBasedRequestDispatcher implements RequestDispatcher
 {
@@ -48,6 +52,9 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 	/** Mappings from request path to {@link ResourceMapping} objects. */
 	protected Map<String, ResourceMapping> mappings;
+
+	/** The path matcher used to check controller mappings. */
+	private PathMatcher pathMatcher;
 
 	/**
 	 * Creates the request dispatcher.
@@ -59,11 +66,13 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	{
 		super();
 		mappings = new HashMap<String, ResourceMapping>();
+		pathMatcher = new RegExpPathMatcher();
 		readConfiguration();
 	}
 
 	@Override
-	public void dispatch(final HttpServletRequest req, final HttpServletResponse resp) throws Exception
+	public void dispatch(final HttpServletRequest req,
+			final HttpServletResponse resp) throws Exception
 	{
 		LOGGER.debug("Looking for a controller to handle request to: {}",
 				req.getRequestURI());
@@ -73,7 +82,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 		for (String path : mappings.keySet())
 		{
-			if (requestedPath.startsWith(path))
+			if (pathMatcher.matches(path, requestedPath))
 			{
 				mapping = mappings.get(path);
 
@@ -89,16 +98,18 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 			// Execute controller logic and get the view to render
 			String viewName = controller.execute(req, resp);
-			
+
 			if (viewName != null)
 			{
 				// Publish the view and layout attributes to render the view
 				if (mapping.getLayout() != null)
 				{
-					String layoutPath = Configuration.LAYOUT_PATH + "/" + mapping.getLayout();
-					req.setAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE, layoutPath);
+					String layoutPath = Configuration.LAYOUT_PATH + "/"
+							+ mapping.getLayout();
+					req.setAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE,
+							layoutPath);
 				}
-	
+
 				String viewPath = Configuration.VIEW_PATH + mapping.getPath()
 						+ "/" + viewName + Configuration.VIEW_SUFFIX;
 				req.setAttribute(Configuration.CURRENT_VIEW_ATTRIBUTE, viewPath);
@@ -106,9 +117,11 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 		}
 		else
 		{
-			LOGGER.error("No controller was found to handle request to: {}", req.getRequestURI());
+			LOGGER.error("No controller was found to handle request to: {}",
+					req.getRequestURI());
 
-			resp.sendError( HttpServletResponse.SC_NOT_FOUND,
+			resp.sendError(
+					HttpServletResponse.SC_NOT_FOUND,
 					"No controller was found to handle request to: "
 							+ req.getRequestURI());
 		}
@@ -153,15 +166,18 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 				if (clazz == null)
 				{
-					throw new ConfigurationException("Missing controller class for path: " + path);
+					throw new ConfigurationException(
+							"Missing controller class for path: " + path);
 				}
 
 				try
 				{
-					ClassLoader cl = Thread.currentThread().getContextClassLoader();
+					ClassLoader cl = Thread.currentThread()
+							.getContextClassLoader();
 
 					@SuppressWarnings("unchecked")
-					Class<Controller> controllerClass = (Class<Controller>) Class.forName(clazz, true, cl);
+					Class<Controller> controllerClass = (Class<Controller>) Class
+							.forName(clazz, true, cl);
 
 					ResourceMapping mapping = new ResourceMapping();
 					mapping.setPath(path);
@@ -170,11 +186,13 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 					mappings.put(path, mapping);
 
-					LOGGER.info("Mapping {} to {}", path, controllerClass.getName());
+					LOGGER.info("Mapping {} to {}", path,
+							controllerClass.getName());
 				}
 				catch (Exception ex)
 				{
-					throw new ConfigurationException("Could not get controller class: " + clazz);
+					throw new ConfigurationException(
+							"Could not get controller class: " + clazz);
 				}
 			}
 		}

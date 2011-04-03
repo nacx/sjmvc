@@ -20,31 +20,47 @@
  * THE SOFTWARE.
  */
 
-package org.sjmvc.web;
+package org.sjmvc.web.dispatch.path;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
-import org.sjmvc.controller.Controller;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
- * Request processor that dispatches request to the appropriate
- * {@link Controller} objects.
+ * Unit tests for the {@link RegExpPathMatcher} class.
  * 
  * @author Ignasi Barrera
  * 
  */
-public interface RequestDispatcher
+public class RegExpPathMatcherTest
 {
+	/** The matcher to test. */
+	private RegExpPathMatcher matcher;
 
-	/**
-	 * Dispatches the request to the appropriate <code>Controller</code>
-	 * objects.
-	 * 
-	 * @param request The request to dispatch.
-	 * @param response The response.
-	 * @throws Exception If there is an error during request processing.
-	 */
-	public void dispatch(HttpServletRequest request,
-			HttpServletResponse response) throws Exception;
+	@BeforeMethod
+	public void setUp()
+	{
+		matcher = new RegExpPathMatcher();
+	}
+
+	@Test
+	public void testMatches()
+	{
+		// Match success
+		assertTrue(matcher.matches("", ""));
+		assertTrue(matcher.matches("/api", "/api"));
+		assertTrue(matcher.matches("/api", "/api/"));
+		assertTrue(matcher.matches("/api", "/api/test"));
+		assertTrue(matcher.matches("/api/.*/", "/api/test/"));
+		assertTrue(matcher.matches("/api/[a-z]*/", "/api/test/subpath"));
+		assertTrue(matcher.matches("/api/[a-z]*/", "/api/test/subpath/anotherpath"));
+		
+		// Match failure
+		assertFalse(matcher.matches("/api", "/hola"));
+		assertFalse(matcher.matches("/api/", "api"));
+		assertFalse(matcher.matches("/api/.*/", "/api/test"));
+	}
+
 }

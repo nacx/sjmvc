@@ -25,6 +25,7 @@ package org.sjmvc.web;
 import java.io.Serializable;
 
 import org.sjmvc.controller.Controller;
+import org.sjmvc.web.dispatch.path.PathBasedRequestDispatcher;
 
 /**
  * This class holds the resource mapping configuration such as the resource URI,
