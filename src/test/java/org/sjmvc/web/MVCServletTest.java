@@ -60,8 +60,7 @@ public class MVCServletTest
 	public void setUp()
 	{
 		ServletRunner servletRunner = new ServletRunner();
-		servletRunner
-				.registerServlet("sjmvc/web/*", MVCServlet.class.getName());
+		servletRunner.registerServlet("sjmvc/web/*", MVCServlet.class.getName());
 		servletClient = servletRunner.newClient();
 	}
 

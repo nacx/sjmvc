@@ -48,8 +48,7 @@ public class MockController extends MethodInvokingController
 	 */
 	public void fail(HttpServletRequest request, HttpServletResponse response)
 	{
-		throw new UnsupportedOperationException(
-				"MockController execution failure");
+		throw new UnsupportedOperationException("MockController execution failure");
 	}
 
 	/**
@@ -63,8 +62,7 @@ public class MockController extends MethodInvokingController
 	/**
 	 * A method that adds an error to the error list.
 	 */
-	public void addError(HttpServletRequest request,
-			HttpServletResponse response)
+	public void addError(HttpServletRequest request, HttpServletResponse response)
 	{
 		error("Mock error");
 	}

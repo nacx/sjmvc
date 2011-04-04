@@ -44,23 +44,26 @@ public class ConfigurationTest
 {
 
 	@Test
-	public void testIsConfigPathProperty()
+	public void testIsControllerPathProperty()
 	{
 		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX
 				+ CONTROLLER_PATH_SUFFIX));
-		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX + " "
-				+ CONTROLLER_PATH_SUFFIX));
+		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX
+				+ " " + CONTROLLER_PATH_SUFFIX));
 		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX
 				+ "test" + CONTROLLER_PATH_SUFFIX));
-		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX + "."
-				+ CONTROLLER_PATH_SUFFIX));
+		assertTrue(Configuration.isControllerPathProperty(CONTROLLER_PREFIX
+				+ "." + CONTROLLER_PATH_SUFFIX));
 
 		assertFalse(Configuration.isControllerPathProperty(""));
 		assertFalse(Configuration.isControllerPathProperty("test"));
 		assertFalse(Configuration.isControllerPathProperty(CONTROLLER_PREFIX));
-		assertFalse(Configuration.isControllerPathProperty(CONTROLLER_PATH_SUFFIX));
-		assertFalse(Configuration.isControllerPathProperty(CONTROLLER_PREFIX + "test"));
-		assertFalse(Configuration.isControllerPathProperty("test" + CONTROLLER_PATH_SUFFIX));
+		assertFalse(Configuration
+				.isControllerPathProperty(CONTROLLER_PATH_SUFFIX));
+		assertFalse(Configuration.isControllerPathProperty(CONTROLLER_PREFIX
+				+ "test"));
+		assertFalse(Configuration.isControllerPathProperty("test"
+				+ CONTROLLER_PATH_SUFFIX));
 	}
 
 	@Test
@@ -77,8 +80,10 @@ public class ConfigurationTest
 	{
 		// Existing properties
 		assertEquals(getConfigValue("sjmvc.controller.mock.path"), "/mock");
-		assertEquals(getConfigValue("sjmvc.controller.mock.layout"), "layout.jsp");
-		assertEquals(getConfigValue("sjmvc.controller.mock.class"), "org.sjmvc.controller.MockController");
+		assertEquals(getConfigValue("sjmvc.controller.mock.layout"),
+				"layout.jsp");
+		assertEquals(getConfigValue("sjmvc.controller.mock.class"),
+				"org.sjmvc.controller.MockController");
 
 		// Unexisting properties
 		assertEquals(getConfigValue("sjmvc.unexisting"), null);

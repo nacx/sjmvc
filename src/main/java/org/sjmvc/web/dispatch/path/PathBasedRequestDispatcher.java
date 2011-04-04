@@ -88,6 +88,9 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 				LOGGER.debug("Using {} controller to handle request to: {}",
 						mapping.getClass().getName(), req.getRequestURI());
+				
+				// Use first match to handle the request
+				break;
 			}
 		}
 

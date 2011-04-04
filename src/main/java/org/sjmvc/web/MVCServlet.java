@@ -82,7 +82,7 @@ public class MVCServlet extends HttpServlet
             StatusExposingResponseWrapper response = new StatusExposingResponseWrapper(resp);
             dispatcher.dispatch(req, response);
             
-            // Only forward if no errors have been committed to the response
+            // Only forward if here are no errors and the response has not been committed
             if (response.isOk() && !response.isCommitted())
             {
                 String currentLayout = (String) req.getAttribute(Configuration.CURRENT_LAYOUT_ATTRIBUTE);
