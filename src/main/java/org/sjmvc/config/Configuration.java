@@ -81,7 +81,7 @@ public class Configuration
 	// Dipatcher configuration
 
 	/** The suffix for controller class mapping properties. */
-	public static final String PATH_MATCHER_PROPERTY = "sjmvc.path.matcher";
+	public static final String PATH_MATCHER_PROPERTY = "sjmvc.path.matcher.class";
 
 	/** The default {@link PathMatcher} to use if none is configured. */
 	public static final Class<? extends PathMatcher> DEFAULT_PATH_MATCHER = AntPathMatcher.class;
