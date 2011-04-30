@@ -25,6 +25,8 @@ package org.sjmvc.config;
 import java.util.Properties;
 
 import org.sjmvc.controller.Controller;
+import org.sjmvc.web.dispatch.path.AntPathMatcher;
+import org.sjmvc.web.dispatch.path.PathMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,117 +37,161 @@ import org.slf4j.LoggerFactory;
  */
 public class Configuration
 {
-    /** The logger. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+	/** The logger. */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(Configuration.class);
 
-    // View configuration
+	// View configuration
 
-    /** The view path. */
-    public static final String VIEW_PATH = "/jsp";
+	/** The view path. */
+	public static final String VIEW_PATH = "/jsp";
 
-    /** The view suffix. */
-    public static final String VIEW_SUFFIX = ".jsp";
+	/** The view suffix. */
+	public static final String VIEW_SUFFIX = ".jsp";
 
-    /** The layout path. */
-    public static final String LAYOUT_PATH = VIEW_PATH + "/layout";
+	/** The layout path. */
+	public static final String LAYOUT_PATH = VIEW_PATH + "/layout";
 
-    /** The attribute name where the model will be published. */
-    public static final String MODEL_ATTRIBUTE = "model";
+	/** The attribute name where the model will be published. */
+	public static final String MODEL_ATTRIBUTE = "model";
 
-    /** The attribute name where the controller errors will be published. */
-    public static final String ERRORS_ATTRIBUTE = "errors";
-    
-    /** The attribute name where the current layout will be published. */
-    public static final String CURRENT_LAYOUT_ATTRIBUTE = "currentLayout";
+	/** The attribute name where the controller errors will be published. */
+	public static final String ERRORS_ATTRIBUTE = "errors";
 
-    /** The attribute name where the current view will be published. */
-    public static final String CURRENT_VIEW_ATTRIBUTE = "currentView";
+	/** The attribute name where the current layout will be published. */
+	public static final String CURRENT_LAYOUT_ATTRIBUTE = "currentLayout";
 
-    // Controller configuration
+	/** The attribute name where the current view will be published. */
+	public static final String CURRENT_VIEW_ATTRIBUTE = "currentView";
 
-    /** The prefix for controller mapping properties. */
-    public static final String CONTROLLER_PREFIX = "sjmvc.controller.";
+	// Controller configuration
 
-    /** The suffix for controller path mapping properties. */
-    public static final String CONTROLLER_PATH_SUFFIX = ".path";
-    
-    /** The suffix for controller layout mapping properties. */
-    public static final String CONTROLLER_LAYOUT_SUFFIX = ".layout";
+	/** The prefix for controller mapping properties. */
+	public static final String CONTROLLER_PREFIX = "sjmvc.controller.";
 
-    /** The suffix for controller class mapping properties. */
-    public static final String CONTROLLER_CLASS_SUFFIX = ".class";
+	/** The suffix for controller path mapping properties. */
+	public static final String CONTROLLER_PATH_SUFFIX = ".path";
 
-    // Main configuration
+	/** The suffix for controller layout mapping properties. */
+	public static final String CONTROLLER_LAYOUT_SUFFIX = ".layout";
 
-    /** The main configuration file. */
-    private static final String CONFIG_FILE = "sjmvc.properties";
+	/** The suffix for controller class mapping properties. */
+	public static final String CONTROLLER_CLASS_SUFFIX = ".class";
 
-    /** The singleton instance of the configuration object. */
-    private static Configuration instance;
+	// Dipatcher configuration
 
-    /** The configuration properties. */
-    private Properties properties;
+	/** The suffix for controller class mapping properties. */
+	public static final String PATH_MATCHER_PROPERTY = "sjmvc.path.matcher";
 
-    /**
-     * Private constructor. This class should ot be instantiated.
-     */
-    private Configuration()
-    {
-        super();
-    }
+	/** The default {@link PathMatcher} to use if none is configured. */
+	public static final Class<? extends PathMatcher> DEFAULT_PATH_MATCHER = AntPathMatcher.class;
 
-    /**
-     * Gets the configuration properties.
-     * 
-     * @return The configuration properties.
-     */
-    public static Properties getConfiguration()
-    {
-        if (instance == null)
-        {
-            instance = new Configuration();
+	// Main configuration
 
-            LOGGER.debug("Loading configuration from {}", CONFIG_FILE);
+	/** The main configuration file. */
+	private static final String CONFIG_FILE = "sjmvc.properties";
 
-            // Load properties
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            instance.properties = new Properties();
+	/** The singleton instance of the configuration object. */
+	private static Configuration instance;
 
-            try
-            {
-                instance.properties.load(cl.getResourceAsStream(CONFIG_FILE));
-            }
-            catch (Exception ex)
-            {
-                throw new ConfigurationException("Could not load configuration file: "
-                    + ex.getMessage());
-            }
+	/** The configuration properties. */
+	private Properties properties;
 
-            LOGGER.debug("Loaded {} configuration properties", instance.properties.size());
-        }
+	/**
+	 * Private constructor. This class should ot be instantiated.
+	 */
+	private Configuration()
+	{
+		super();
+	}
 
-        return instance.properties;
-    }
+	/**
+	 * Gets the configuration properties.
+	 * 
+	 * @return The configuration properties.
+	 */
+	public static Properties getConfiguration()
+	{
+		if (instance == null)
+		{
+			instance = new Configuration();
 
-    /**
-     * Get the configuration value for the given property name.
-     * 
-     * @return The value for the given property or <code>null</code> if the value is not defined.
-     */
-    public static String getConfigValue(final String propertyName)
-    {
-        return getConfiguration().getProperty(propertyName);
-    }
+			LOGGER.debug("Loading configuration from {}", CONFIG_FILE);
 
-    /**
-     * Checks if the given property defines a {@link Controller} path mapping.
-     * 
-     * @param property The property to check.
-     * @return Boolean indicating if the given property defines a <code>Controller</code> mapping.
-     */
-    public static boolean isControllerPathProperty(final String property)
-    {
-        return property.startsWith(CONTROLLER_PREFIX) && property.endsWith(CONTROLLER_PATH_SUFFIX);
-    }
+			// Load properties
+			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			instance.properties = new Properties();
 
+			try
+			{
+				instance.properties.load(cl.getResourceAsStream(CONFIG_FILE));
+			}
+			catch (Exception ex)
+			{
+				throw new ConfigurationException(
+						"Could not load configuration file: " + ex.getMessage());
+			}
+
+			LOGGER.debug("Loaded {} configuration properties",
+					instance.properties.size());
+		}
+
+		return instance.properties;
+	}
+
+	/**
+	 * Get the configuration value for the given property name.
+	 * 
+	 * @return The value for the given property or <code>null</code> if the
+	 *         value is not defined.
+	 */
+	public static String getConfigValue(final String propertyName)
+	{
+		return getConfiguration().getProperty(propertyName);
+	}
+
+	/**
+	 * Checks if the given property defines a {@link Controller} path mapping.
+	 * 
+	 * @param property The property to check.
+	 * @return Boolean indicating if the given property defines a
+	 *         <code>Controller</code> mapping.
+	 */
+	public static boolean isControllerPathProperty(final String property)
+	{
+		return property.startsWith(CONTROLLER_PREFIX)
+				&& property.endsWith(CONTROLLER_PATH_SUFFIX);
+	}
+
+	/**
+	 * Get the configured path matcher class to use to resolve
+	 * {@link Controller} URIs.
+	 * 
+	 * @return The configured
+	 */
+	@SuppressWarnings("unchecked")
+	public static Class<? extends PathMatcher> getPathMatcherClass()
+	{
+		String configuredPathMatcher = getConfigValue(PATH_MATCHER_PROPERTY);
+
+		if (configuredPathMatcher != null)
+		{
+			try
+			{
+				ClassLoader cl = Thread.currentThread().getContextClassLoader();
+				return (Class<? extends PathMatcher>) Class.forName(
+						configuredPathMatcher, true, cl);
+			}
+			catch (ClassNotFoundException ex)
+			{
+				throw new ConfigurationException(
+						"Could not load configured path matcher class: "
+								+ ex.getMessage());
+			}
+		}
+		else
+		{
+			return DEFAULT_PATH_MATCHER;
+		}
+	}
 }

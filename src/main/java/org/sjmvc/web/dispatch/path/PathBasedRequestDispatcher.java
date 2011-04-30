@@ -54,7 +54,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	protected Map<String, ResourceMapping> mappings;
 
 	/** The path matcher used to check controller mappings. */
-	private PathMatcher pathMatcher;
+	protected PathMatcher pathMatcher;
 
 	/**
 	 * Creates the request dispatcher.
@@ -65,9 +65,8 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	public PathBasedRequestDispatcher() throws ConfigurationException
 	{
 		super();
-		mappings = new HashMap<String, ResourceMapping>();
-		pathMatcher = new RegExpPathMatcher();
-		readConfiguration();
+		loadPathMatcher();
+		loadControllerMappings();
 	}
 
 	@Override
@@ -88,7 +87,7 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 
 				LOGGER.debug("Using {} controller to handle request to: {}",
 						mapping.getClass().getName(), req.getRequestURI());
-				
+
 				// Use first match to handle the request
 				break;
 			}
@@ -131,15 +130,22 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	}
 
 	/**
-	 * Get the requested path relative to the servlet path.
-	 * 
-	 * @param req The request.
-	 * @return The requested path.
+	 * Load the {@link PathMatcher} to use to process request URIs.
 	 */
-	private String getRequestedPath(final HttpServletRequest req)
+	protected void loadPathMatcher() throws ConfigurationException
 	{
-		return req.getRequestURI().replaceFirst(req.getContextPath(), "")
-				.replaceFirst(req.getServletPath(), "");
+		Class<? extends PathMatcher> pathMatcherClass = Configuration
+				.getPathMatcherClass();
+		try
+		{
+			pathMatcher = pathMatcherClass.newInstance();
+		}
+		catch (Exception ex)
+		{
+			throw new ConfigurationException(
+					"Could not instantiate the path matcher class: "
+							+ ex.getMessage());
+		}
 	}
 
 	/**
@@ -147,8 +153,9 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 	 * 
 	 * @throws Exception If mappings cannot be loaded.
 	 */
-	protected void readConfiguration() throws ConfigurationException
+	protected void loadControllerMappings() throws ConfigurationException
 	{
+		mappings = new HashMap<String, ResourceMapping>();
 		Properties config = Configuration.getConfiguration();
 
 		LOGGER.info("Loading controller mappings...");
@@ -199,5 +206,17 @@ public class PathBasedRequestDispatcher implements RequestDispatcher
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get the requested path relative to the servlet path.
+	 * 
+	 * @param req The request.
+	 * @return The requested path.
+	 */
+	private String getRequestedPath(final HttpServletRequest req)
+	{
+		return req.getRequestURI().replaceFirst(req.getContextPath(), "")
+				.replaceFirst(req.getServletPath(), "");
 	}
 }

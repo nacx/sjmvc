@@ -22,12 +22,15 @@
 
 package org.sjmvc.web.dispatch.path;
 
+import static org.sjmvc.config.Configuration.DEFAULT_PATH_MATCHER;
+import static org.sjmvc.config.Configuration.PATH_MATCHER_PROPERTY;
+import static org.sjmvc.config.Configuration.getConfiguration;
 import static org.testng.Assert.assertEquals;
 
+import org.sjmvc.config.ConfigurationException;
 import org.sjmvc.controller.MockController;
 import org.sjmvc.web.ResourceMapping;
-import org.sjmvc.web.dispatch.path.PathBasedRequestDispatcher;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -40,26 +43,49 @@ public class PathBasedRequestDispatcherTest
 {
 	// Request handling unit testing is covered in the MVCServletTest class
 
-	/** The request dispatcher to test. */
-	private PathBasedRequestDispatcher dispatcher;
-
-	@BeforeMethod
-	public void setUp()
+	@AfterMethod
+	public void tearDown()
 	{
-		dispatcher = new PathBasedRequestDispatcher();
+		// Reset the configuration to the default values in the test
+		// configuration file
+		getConfiguration().remove(PATH_MATCHER_PROPERTY);
 	}
 
 	@Test
-	public void testReadConfiguration()
+	public void testLoadControllerMappings()
 	{
-		dispatcher.readConfiguration();
-		
+		PathBasedRequestDispatcher dispatcher = new PathBasedRequestDispatcher();
+
 		assertEquals(dispatcher.mappings.size(), 1);
-		
+
 		ResourceMapping mapping = dispatcher.mappings.get("/mock");
-		
+
 		assertEquals(mapping.getPath(), "/mock");
 		assertEquals(mapping.getLayout(), "layout.jsp");
 		assertEquals(mapping.getControllerClass(), MockController.class);
+	}
+
+	@Test
+	public void testLoadDefaultPathMatcher()
+	{
+		PathBasedRequestDispatcher dispatcher = new PathBasedRequestDispatcher();
+		assertEquals(dispatcher.pathMatcher.getClass(), DEFAULT_PATH_MATCHER);
+	}
+
+	@Test
+	public void testLoadConfiguredPathMatcher()
+	{
+		getConfiguration().put(PATH_MATCHER_PROPERTY,
+				RegExpPathMatcher.class.getName());
+		PathBasedRequestDispatcher dispatcher = new PathBasedRequestDispatcher();
+		assertEquals(dispatcher.pathMatcher.getClass(), RegExpPathMatcher.class);
+	}
+
+	@Test(expectedExceptions = ConfigurationException.class)
+	public void testLoadInvalidPathMatcher()
+	{
+		getConfiguration().put(PATH_MATCHER_PROPERTY,
+				"org.sjmvc.UnexistingClass");
+		new PathBasedRequestDispatcher();
 	}
 }

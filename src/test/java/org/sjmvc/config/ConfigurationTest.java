@@ -24,8 +24,11 @@ package org.sjmvc.config;
 
 import static org.sjmvc.config.Configuration.CONTROLLER_PATH_SUFFIX;
 import static org.sjmvc.config.Configuration.CONTROLLER_PREFIX;
+import static org.sjmvc.config.Configuration.DEFAULT_PATH_MATCHER;
+import static org.sjmvc.config.Configuration.PATH_MATCHER_PROPERTY;
 import static org.sjmvc.config.Configuration.getConfigValue;
 import static org.sjmvc.config.Configuration.getConfiguration;
+import static org.sjmvc.config.Configuration.getPathMatcherClass;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -33,6 +36,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Properties;
 
+import org.sjmvc.web.dispatch.path.RegExpPathMatcher;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -42,6 +47,13 @@ import org.testng.annotations.Test;
  */
 public class ConfigurationTest
 {
+	@AfterMethod
+	public void tearDown()
+	{
+		// Reset the configuration to the default values in the test
+		// configuration file
+		getConfiguration().remove(PATH_MATCHER_PROPERTY);
+	}
 
 	@Test
 	public void testIsControllerPathProperty()
@@ -87,5 +99,25 @@ public class ConfigurationTest
 
 		// Unexisting properties
 		assertEquals(getConfigValue("sjmvc.unexisting"), null);
+	}
+
+	@Test
+	public void testGetPathMatcher()
+	{
+		// Default Path Matcher
+		assertEquals(getPathMatcherClass(), DEFAULT_PATH_MATCHER);
+
+		// Configured Path Matcher
+		getConfiguration().put(PATH_MATCHER_PROPERTY,
+				RegExpPathMatcher.class.getName());
+		assertEquals(getPathMatcherClass(), RegExpPathMatcher.class);
+	}
+
+	@Test(expectedExceptions = ConfigurationException.class)
+	public void testGetPathMatcherUnexistingClass()
+	{
+		getConfiguration().put(PATH_MATCHER_PROPERTY,
+				"org.sjmvc.UnexistingClass");
+		getPathMatcherClass();
 	}
 }

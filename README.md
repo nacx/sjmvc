@@ -40,4 +40,7 @@ will do our best to fix it.
 License
 -------
 
-See LICENSE file.
+This sowftare is licensed under the MIT license. See LICENSE file for details.
+
+It also includes software from the [Spring Framework](http://www.springsource.org/) which is licensed under
+the Apache License, Version 2.0. You may obtain a copy of that License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0). 
