@@ -58,6 +58,7 @@ public class AntPathMatcherTest
 		assertTrue(matcher.matches("/api/**", "/api/test"));
 		assertTrue(matcher.matches("/api/*/", "/api/test/"));
 		assertTrue(matcher.matches("/api/**/", "/api/test/"));
+		assertTrue(matcher.matches("/api/**/test", "/api/test/another/hola"));
 		assertTrue(matcher.matches("/api/**/test", "/api/test"));
 		assertTrue(matcher.matches("/api/sub?ath/test", "/api/subpath/test"));
 		assertTrue(matcher.matches("/api/**/anotherpath",
@@ -66,6 +67,7 @@ public class AntPathMatcherTest
 		// Match failure
 		assertFalse(matcher.matches("/api", "/hola"));
 		assertFalse(matcher.matches("/api/*/test", "/api/test"));
+		assertFalse(matcher.matches("/api/t?est/test", "/api/t12est/test"));
 	}
 
 }

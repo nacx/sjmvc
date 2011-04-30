@@ -59,16 +59,24 @@ import java.util.regex.Pattern;
  * </ul>
  * 
  * <p>
- * NOTE</b>: This class was borrowed (with much appreciation) from the <a
+ * <b>NOTE</b>: This class was borrowed (with much appreciation) from the <a
  * href="http://www.springsource.org">Spring Framework</a> with modifications.
  * We didn't want to reinvent the wheel of great work they've done, but also
  * didn't want to force every SJMVC user to depend on Spring.
  * </p>
  * 
  * <p>
+ * <b>IMPORTANT CHANGES:</b> There are significant changes made to this class to
+ * use the pattern ONLY as a prefix match. That means that we are only matching
+ * the beginning of the paths, but not the whole path. This is implemented this
+ * way to allow flexible controller mapping definitions.
+ * </p>
+ * 
+ * <p>
  * As per the Apache 2.0 license, the original copyright notice and all author
  * and copyright information have remained in tact.
  * </p>
+ * 
  * 
  * @author Alef Arendsen
  * @author Juergen Hoeller
