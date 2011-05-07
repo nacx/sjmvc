@@ -7,11 +7,11 @@
 	<description>Utility tags for the SJMVC pages</description>
 	<tlib-version>${project.version}</tlib-version>
 
-    <!-- Errors tag -->
+    <!-- Messages tag -->
 	<tag>
-		<name>errors</name>
-		<description>Print the controlled errors occurred during Controller execution</description>
-		<tag-class>org.sjmvc.web.taglib.ErrorsTag</tag-class>
+		<name>messages</name>
+		<description>Print the controlled messages populated during Controller execution</description>
+		<tag-class>org.sjmvc.web.taglib.MessagesTag</tag-class>
 		<body-content>empty</body-content>
 	</tag>
 

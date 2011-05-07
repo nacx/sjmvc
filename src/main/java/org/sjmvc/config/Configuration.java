@@ -56,7 +56,7 @@ public class Configuration
 	public static final String MODEL_ATTRIBUTE = "model";
 
 	/** The attribute name where the controller errors will be published. */
-	public static final String ERRORS_ATTRIBUTE = "errors";
+	public static final String MESSAGES_ATTRIBUTE = "messages";
 
 	/** The attribute name where the current layout will be published. */
 	public static final String CURRENT_LAYOUT_ATTRIBUTE = "currentLayout";

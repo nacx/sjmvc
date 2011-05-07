@@ -57,7 +57,7 @@ public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 		HttpServletRequest request = getRequest("stringProperty");
 		controller.bind(target, request);
 
-		assertFalse(controller.errors.hasErrors());
+		assertFalse(controller.messages.getErrors().hasErrors());
 		assertEquals(target.getStringProperty(), "stringProperty");
 	}
 
@@ -67,8 +67,8 @@ public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 		HttpServletRequest request = getRequest("unexistingProperty");
 		controller.bind(target, request);
 
-		assertTrue(controller.errors.hasErrors());
-		assertEquals(controller.errors.errorCount(), 1);
+		assertTrue(controller.messages.getErrors().hasErrors());
+		assertEquals(controller.messages.getErrors().errorCount(), 1);
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 		target.setRequiredFields();
 		controller.validate(target);
 
-		assertFalse(controller.errors.hasErrors());
+		assertFalse(controller.messages.getErrors().hasErrors());
 	}
 
 	@Test
@@ -85,8 +85,8 @@ public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 	{
 		controller.validate(target);
 
-		assertTrue(controller.errors.hasErrors());
-		assertEquals(controller.errors.errorCount(), 2);
+		assertTrue(controller.messages.getErrors().hasErrors());
+		assertEquals(controller.messages.getErrors().errorCount(), 2);
 	}
 
 	@Test
@@ -97,8 +97,8 @@ public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 
 		// Validation should not be executed,
 		// only the binding error should be present
-		assertTrue(controller.errors.hasErrors());
-		assertEquals(controller.errors.errorCount(), 1);
+		assertTrue(controller.messages.getErrors().hasErrors());
+		assertEquals(controller.messages.getErrors().errorCount(), 1);
 	}
 
 	@Test
@@ -108,8 +108,8 @@ public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 		controller.bindAndValidate(target, request);
 
 		// Binding should succeed and validation fail
-		assertTrue(controller.errors.hasErrors());
-		assertEquals(controller.errors.errorCount(), 2);
+		assertTrue(controller.messages.getErrors().hasErrors());
+		assertEquals(controller.messages.getErrors().errorCount(), 2);
 	}
 
 	@Test
@@ -125,6 +125,6 @@ public class AbstractControllerTest extends RequestBinderTestBase<TestPojo>
 		controller.bindAndValidate(target, request);
 
 		// Binding should succeed and validation fail
-		assertFalse(controller.errors.hasErrors());
+		assertFalse(controller.messages.getErrors().hasErrors());
 	}
 }
