@@ -346,8 +346,8 @@ public class AntPathMatcher implements PathMatcher
 	 * <code>/docs/cvs/commit.html</code>'</li>
 	 * </ul>
 	 * <p>
-	 * Assumes that {@link #match} returns <code>true</code> for '
-	 * <code>pattern</code>' and '<code>path</code>', but does
+	 * Assumes that {@link #matches(String, String)} returns <code>true</code>
+	 * for ' <code>pattern</code>' and '<code>path</code>', but does
 	 * <strong>not</strong> enforce this.
 	 */
 	public String extractPathWithinPattern(String pattern, String path)

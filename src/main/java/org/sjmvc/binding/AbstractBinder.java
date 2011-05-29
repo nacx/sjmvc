@@ -206,7 +206,7 @@ public abstract class AbstractBinder<T, S> implements Binder<T, S>
 	 * @param field The field to set.
 	 * @param currentObject The object being processed.
 	 * @param name The name of the property.
-	 * @param values The value to set.
+	 * @param value The value to set.
 	 * @throws Exception If the value cannot be set in the property.
 	 */
 	protected void setSimpleValue(Field field, Object currentObject,

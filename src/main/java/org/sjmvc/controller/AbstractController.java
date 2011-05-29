@@ -135,9 +135,8 @@ public abstract class AbstractController implements Controller
 	 * This method returns void and expects this method to set the view to
 	 * render by calling the {@link #setView(String)} method.
 	 * <p>
-	 * The model must be also populated using the
-	 * {@link #setModel(String, Object)} method in order to let the views render
-	 * properly.
+	 * The model must be also populated using the {@link #setModel(Object)}
+	 * method in order to let the views render properly.
 	 * 
 	 * @param request The request.
 	 * @param response The response.
