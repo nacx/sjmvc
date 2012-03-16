@@ -32,152 +32,152 @@ import java.lang.reflect.ParameterizedType;
  */
 public class ReflectionUtils
 {
-	/**
-	 * Get the value of the given property
-	 * 
-	 * @param target The object that has the field.
-	 * @param name The name of the property.
-	 * @return The value of the property.
-	 * @throws Exception If the value of the property cannot be retrieved.
-	 */
-	public static Object getProperty(Object target, String name)
-			throws Exception
-	{
-		Field field = target.getClass().getDeclaredField(name);
-		field.setAccessible(true);
-		return field.get(target);
-	}
+    /**
+     * Get the value of the given property
+     * 
+     * @param target The object that has the field.
+     * @param name The name of the property.
+     * @return The value of the property.
+     * @throws Exception If the value of the property cannot be retrieved.
+     */
+    public static Object getProperty(final Object target, final String name) throws Exception
+    {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(target);
+    }
 
-	/**
-	 * Sets the value of the given property.
-	 * 
-	 * @param target The object that has the field.
-	 * @param name The name of the property.
-	 * @param value The value to set.
-	 * @throws Exception If the value of the property cannot be set.
-	 */
-	public static void transformAndSet(Object target, String name, String value)
-			throws Exception
-	{
-		Field field = target.getClass().getDeclaredField(name);
-		field.setAccessible(true);
-		field.set(target, fromString(field.getType(), value));
-	}
+    /**
+     * Sets the value of the given property.
+     * 
+     * @param target The object that has the field.
+     * @param name The name of the property.
+     * @param value The value to set.
+     * @throws Exception If the value of the property cannot be set.
+     */
+    public static void transformAndSet(final Object target, final String name, final String value)
+        throws Exception
+    {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(target, fromString(field.getType(), value));
+    }
 
-	/**
-	 * Sets the value of the given property.
-	 * 
-	 * @param target The object that has the field.
-	 * @param name The name of the property.
-	 * @param value The value to set.
-	 * @throws Exception If the value of the property cannot be set.
-	 */
-	public static void setValue(Object target, String name, Object value)
-			throws Exception
-	{
-		Field field = target.getClass().getDeclaredField(name);
-		field.setAccessible(true);
-		field.set(target, value);
-	}
+    /**
+     * Sets the value of the given property.
+     * 
+     * @param target The object that has the field.
+     * @param name The name of the property.
+     * @param value The value to set.
+     * @throws Exception If the value of the property cannot be set.
+     */
+    public static void setValue(final Object target, final String name, final Object value)
+        throws Exception
+    {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(target, value);
+    }
 
-	/**
-	 * Convert the given String to the given class.
-	 * 
-	 * @param clazz The destination class.
-	 * @param value The String value to convert.
-	 * @return The converted value.
-	 * @throws Exception If the given value cannot be transformed.
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T fromString(Class<T> clazz, String value)
-			throws Exception
-	{
-		if (value == null)
-		{
-			return null;
-		}
-		else if (clazz.equals(String.class))
-		{
-			return (T) value;
-		}
-		else if (clazz.equals(Integer.class))
-		{
-			return (T) Integer.valueOf(value);
-		}
-		else if (clazz.equals(Double.class))
-		{
-			return (T) Double.valueOf(value);
-		}
-		else if (clazz.equals(Float.class))
-		{
-			return (T) Float.valueOf(value);
-		}
-		else if (clazz.equals(Boolean.class))
-		{
-			return (T) Boolean.valueOf(value);
-		}
-		else if (clazz.equals(Byte.class))
-		{
-			return (T) Byte.valueOf(value);
-		}
-		else if (clazz.equals(Long.class))
-		{
-			return (T) Long.valueOf(value);
-		}
-		else if (clazz.equals(Short.class))
-		{
-			return (T) Short.valueOf(value);
-		}
+    /**
+     * Convert the given String to the given class.
+     * 
+     * @param clazz The destination class.
+     * @param value The String value to convert.
+     * @return The converted value.
+     * @throws Exception If the given value cannot be transformed.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T> T fromString(final Class<T> clazz, final String value) throws Exception
+    {
+        if (value == null)
+        {
+            return null;
+        }
+        else if (clazz.equals(String.class))
+        {
+            return (T) value;
+        }
+        else if (clazz.equals(Integer.class))
+        {
+            return (T) Integer.valueOf(value);
+        }
+        else if (clazz.equals(Double.class))
+        {
+            return (T) Double.valueOf(value);
+        }
+        else if (clazz.equals(Float.class))
+        {
+            return (T) Float.valueOf(value);
+        }
+        else if (clazz.equals(Boolean.class))
+        {
+            return (T) Boolean.valueOf(value);
+        }
+        else if (clazz.equals(Byte.class))
+        {
+            return (T) Byte.valueOf(value);
+        }
+        else if (clazz.equals(Long.class))
+        {
+            return (T) Long.valueOf(value);
+        }
+        else if (clazz.equals(Short.class))
+        {
+            return (T) Short.valueOf(value);
+        }
+        else if (clazz.isEnum())
+        {
+            return (T) Enum.valueOf((Class<Enum>) clazz, value);
+        }
 
-		throw new Exception("Could not transform [" + value
-				+ "] to an object of class [" + clazz.getName() + "]");
-	}
+        throw new Exception("Could not transform [" + value + "] to an object of class ["
+            + clazz.getName() + "]");
+    }
 
-	/**
-	 * Get type for the given property.
-	 * 
-	 * @param name The name of the property.
-	 * @param clazz The class that has the property.
-	 * @return The type of the property.
-	 * @throws Exception If the type of the property cannot be retrieved.
-	 */
-	public static Class<?> getFieldType(String name, Class<?> clazz)
-			throws Exception
-	{
-		Field field = clazz.getDeclaredField(name);
-		return field.getType();
-	}
+    /**
+     * Get type for the given property.
+     * 
+     * @param name The name of the property.
+     * @param clazz The class that has the property.
+     * @return The type of the property.
+     * @throws Exception If the type of the property cannot be retrieved.
+     */
+    public static Class< ? > getFieldType(final String name, final Class< ? > clazz)
+        throws Exception
+    {
+        Field field = clazz.getDeclaredField(name);
+        return field.getType();
+    }
 
-	/**
-	 * Get type for the elements of the given array property.
-	 * 
-	 * @param name The name of the array property.
-	 * @param clazz The class that has the array property.
-	 * @return The type of the elements of the given array property.
-	 * @throws Exception If the type of the elements of the given property
-	 *             cannot be retrieved.
-	 */
-	public static Class<?> getFieldArrayType(String name, Class<?> clazz)
-			throws Exception
-	{
-		Field field = clazz.getDeclaredField(name);
-		return field.getType().getComponentType();
-	}
+    /**
+     * Get type for the elements of the given array property.
+     * 
+     * @param name The name of the array property.
+     * @param clazz The class that has the array property.
+     * @return The type of the elements of the given array property.
+     * @throws Exception If the type of the elements of the given property cannot be retrieved.
+     */
+    public static Class< ? > getFieldArrayType(final String name, final Class< ? > clazz)
+        throws Exception
+    {
+        Field field = clazz.getDeclaredField(name);
+        return field.getType().getComponentType();
+    }
 
-	/**
-	 * Get the generic type for the given collection property.
-	 * 
-	 * @param name The name of the collection property.
-	 * @param clazz The class that has the property.
-	 * @return The type of the elements of the collection.
-	 * @throws Exception If the generic type of the collection cannot be
-	 *             retrieved.
-	 */
-	public static Class<?> getFieldCollectionType(String name, Class<?> clazz)
-			throws Exception
-	{
-		Field field = clazz.getDeclaredField(name);
-		ParameterizedType type = (ParameterizedType) field.getGenericType();
-		return (Class<?>) type.getActualTypeArguments()[0];
-	}
+    /**
+     * Get the generic type for the given collection property.
+     * 
+     * @param name The name of the collection property.
+     * @param clazz The class that has the property.
+     * @return The type of the elements of the collection.
+     * @throws Exception If the generic type of the collection cannot be retrieved.
+     */
+    public static Class< ? > getFieldCollectionType(final String name, final Class< ? > clazz)
+        throws Exception
+    {
+        Field field = clazz.getDeclaredField(name);
+        ParameterizedType type = (ParameterizedType) field.getGenericType();
+        return (Class< ? >) type.getActualTypeArguments()[0];
+    }
 }
