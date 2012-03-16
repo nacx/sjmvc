@@ -148,12 +148,19 @@ public abstract class AbstractController implements Controller
      * @param path The path to forward to.
      * @param request The request.
      * @param response The response.
-     * @throws Exception If the request can not be forwarded.
+     * @throws ControllerException If the request can not be forwarded.
      */
     protected void forward(final String path, final HttpServletRequest request,
-        final HttpServletResponse response) throws Exception
+        final HttpServletResponse response) throws ControllerException
     {
-        request.getRequestDispatcher(path).forward(request, response);
+        try
+        {
+            request.getRequestDispatcher(path).forward(request, response);
+        }
+        catch (Exception ex)
+        {
+            throw new ControllerException("Could not forward request to " + path, ex);
+        }
     }
 
     /**
